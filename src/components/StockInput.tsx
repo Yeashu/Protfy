@@ -1,8 +1,23 @@
-import React from 'react'
+"use client"
+import React, { useState, useContext } from 'react'
+import { PortfolioContext } from '../context/ProtfolioContext'
 
 function StockInput() {
+  const [ticker, setTicker] = useState('')
+  const [quantity, setQuantity] = useState(1)
+  const [avgPrice, setAvgPrice] = useState(0)
+  const { addStock } = useContext(PortfolioContext)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    addStock({ ticker, quantity, avgPrice })
+    setTicker('')
+    setQuantity(1)
+    setAvgPrice(0)
+  }
+
   return (
-    <form className="flex flex-col gap-3 max-w-xs">
+    <form className="flex flex-col gap-3 max-w-xs" onSubmit={handleSubmit}>
       <div>
         <label htmlFor="stock-ticker">Stock Ticker:</label>
         <input
@@ -10,6 +25,8 @@ function StockInput() {
           type="text"
           placeholder="e.g. AAPL, HDFC.NS (NS for National Stock Exchange India)"
           className="border rounded px-2 py-1 ml-2"
+          value={ticker}
+          onChange={e => setTicker(e.target.value)}
         />
       </div>
       <div>
@@ -20,6 +37,8 @@ function StockInput() {
           min="1"
           placeholder="e.g. 10"
           className="border rounded px-2 py-1 ml-2"
+          value={quantity}
+          onChange={e => setQuantity(Number(e.target.value))}
         />
       </div>
       <div>
@@ -31,6 +50,8 @@ function StockInput() {
           step="0.01"
           placeholder="e.g. 150.00"
           className="border rounded px-2 py-1 ml-2"
+          value={avgPrice}
+          onChange={e => setAvgPrice(Number(e.target.value))}
         />
       </div>
       <button
