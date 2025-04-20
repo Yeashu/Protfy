@@ -28,4 +28,27 @@ const getLivePrice = async (ticker: string):Promise<number|null> =>{
     }
 }
 
-export {validateTicker, getLivePrice}
+const getPortfolioAnalysis = async (portfolioData: any): Promise<string> => {
+    try {
+        const response = await fetch('/api/analyse/protfolio', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ portfolioData }),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to analyze portfolio');
+        }
+        
+        return data.analysis;
+    } catch (error) {
+        console.error(`Error analyzing portfolio: ${error}`);
+        throw error;
+    }
+}
+
+export {validateTicker, getLivePrice, getPortfolioAnalysis}
