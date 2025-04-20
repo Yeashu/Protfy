@@ -85,17 +85,20 @@ const StockInput: React.FC<StockInputProps> = () => {
         {showResults && searchResult.length > 0 && (
           <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded shadow-lg z-10 max-h-60 overflow-y-auto">
             {searchResult.map((val) => {
-              if (val.symbol)
+              // Check if the result has a symbol property using the 'in' operator
+              if ('symbol' in val) {
                 return (
                   <li
                     key={val.symbol}
                     className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
                     onMouseDown={() => handleResultClick(val.symbol)}
                   >
-                    {`${val.shortname || val.symbol} (${val.symbol})`}
+                    {`${val.shortname || val.longname || val.symbol} (${val.symbol})`}
                   </li>
                 );
-            })}
+              }
+              return null; // Skip results without symbol property
+            }).filter(Boolean)}
           </ul>
         )}
       </div>

@@ -1,5 +1,4 @@
 // Types related to stock information
-
 export interface Stock {
   ticker: string;
   quantity: number;
@@ -17,14 +16,42 @@ export interface StockApiErrorResponse {
   error: unknown;
 }
 
-// Search types
-export interface SearchResponseData {
-  quotes: SearchResult[];
+// Define types for Yahoo Finance search results
+
+// Base interface for all quote types
+interface BaseQuoteResult {
+  isYahooFinance?: boolean;
 }
 
-export interface SearchResult {
+// For standard equity/stock results
+interface StockResult extends BaseQuoteResult {
   symbol: string;
   shortname?: string;
+  longname?: string;
+  typeDisp?: string;
+  exchDisp?: string;
+  sector?: string;
+  industry?: string;
+  // Add other potential properties from Yahoo Finance API
+}
+
+// For non-Yahoo Finance results that lack symbol
+interface NonYahooFinanceResult extends BaseQuoteResult {
+  isYahooFinance: false;
+  index: string;
+  name: string;
+  permalink: string;
+}
+
+// Union type to accommodate all possible result structures
+export type QuoteResult = StockResult | NonYahooFinanceResult;
+
+// For backward compatibility with existing code in SearchBar.tsx
+export type SearchResult = QuoteResult;
+
+// The actual search response data
+export interface SearchResponseData {
+  quotes: QuoteResult[];
 }
 
 // Live price types

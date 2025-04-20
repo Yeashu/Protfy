@@ -42,10 +42,18 @@ const getLivePrice = async (ticker: string): Promise<LivePriceData> => {
       | StockApiSuccessResponse
       | StockApiErrorResponse;
 
-    if (data.valid && data.info.regularMarketPrice && data.info.currency) {
+    // Type guard to ensure we have a valid response with the expected structure (type gymnastic)
+    if (
+      data.valid &&
+      "info" in data &&
+      typeof data.info === "object" &&
+      data.info !== null &&
+      "regularMarketPrice" in data.info &&
+      "currency" in data.info
+    ) {
       return {
-        price: data.info.regularMarketPrice,
-        currency: data.info.currency,
+        price: data.info.regularMarketPrice as number,
+        currency: data.info.currency as string,
       };
     }
 
