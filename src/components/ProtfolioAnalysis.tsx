@@ -1,64 +1,51 @@
 "use client";
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { getPortfolioAnalysis } from '@/lib/stockUtils';
 import { PortfolioContext } from '@/context/ProtfolioContext';
 
 function ProtfolioAnalysis() {
+  const [analysis, setAnalysis] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { stocks } = useContext(PortfolioContext);
-  const [analysis, setAnalysis] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
 
-  const handleAnalyzePortfolio = async () => {
+  const handleAnalyzePortfolio = useCallback(async () => {
     if (stocks.length === 0) {
-      setError('No stocks in your portfolio to analyze.');
+      setError("You don't have any stocks in your portfolio to analyze.");
       return;
     }
 
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      setError('');
-
-      // Pass the stocks array to getPortfolioAnalysis
       const result = await getPortfolioAnalysis(stocks);
       setAnalysis(result);
-    } catch (err) {
-      setError('Failed to analyze portfolio. Please try again.');
-      console.error(err);
+    } catch (error) {
+      console.error("Portfolio analysis error:", error);
+      setError("Failed to analyze portfolio. Please try again later.");
     } finally {
       setLoading(false);
     }
-  };
-
-  // Automatically analyze the portfolio when the component mounts
-  useEffect(() => {
-    if (stocks.length > 0) {
-      handleAnalyzePortfolio();
-    }
   }, [stocks]);
 
+  useEffect(() => {
+    if (stocks.length > 0 && !analysis) {
+      handleAnalyzePortfolio();
+    }
+  }, [stocks, analysis, handleAnalyzePortfolio]);
+
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6">Portfolio Analysis</h2>
-      
+    <div className="my-8">
       {stocks.length === 0 ? (
-        <div className="p-4 border rounded-md bg-yellow-50 mb-6">
-          <p>You don't have any stocks in your portfolio yet. Add some stocks to get an analysis.</p>
+        <div className="p-6 border rounded-md bg-gray-50">
+          <p className="mb-4">
+            You don&apos;t have any stocks in your portfolio yet. Add some stocks to get an AI-powered analysis.
+          </p>
         </div>
       ) : (
         <div className="mb-6">
-          <h3 className="text-xl font-medium mb-3">Your Portfolio</h3>
-          <div className="bg-gray-50 p-4 border rounded-md mb-4">
-            <ul className="divide-y">
-              {stocks.map((stock) => (
-                <li key={stock.ticker} className="py-2">
-                  <span className="font-medium">{stock.ticker}</span>: {stock.quantity} shares at ${stock.avgPrice.toFixed(2)}
-                </li>
-              ))}
-            </ul>
-          </div>
           <button
             onClick={handleAnalyzePortfolio}
             disabled={loading}

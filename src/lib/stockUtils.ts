@@ -30,6 +30,7 @@ const validateTicker = async (ticker: string): Promise<boolean> => {
       | StockApiErrorResponse;
     return data.valid;
   } catch (error) {
+    console.error(error);
     return false;
   }
 };

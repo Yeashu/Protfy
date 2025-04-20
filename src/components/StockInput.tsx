@@ -4,24 +4,12 @@ import { PortfolioContext } from '../context/ProtfolioContext'
 import { validateTicker, search } from '@/lib/stockUtils'
 import type { SearchResult, Stock } from '@/types/stock'
 
-// Component-specific types
+// Either provide at least one property or use a more specific type
 interface StockInputProps {
   onSubmit?: () => void;
 }
 
-interface StockFormData {
-  ticker: string;
-  quantity: string;
-  avgPrice: string;
-}
-
-interface ValidationErrors {
-  ticker?: string;
-  quantity?: string;
-  avgPrice?: string;
-}
-
-const StockInput: React.FC<StockInputProps> = ({ onSubmit }) => {
+const StockInput: React.FC<StockInputProps> = () => {
   const [ticker, setTicker] = useState('')
   const [quantity, setQuantity] = useState(1)
   const [avgPrice, setAvgPrice] = useState(0)

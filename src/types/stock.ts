@@ -9,12 +9,12 @@ export interface Stock {
 // Stock API response types
 export interface StockApiSuccessResponse {
   valid: true;
-  info: any; // Yahoo finance response type
+  info: unknown; // Yahoo finance response type
 }
 
 export interface StockApiErrorResponse {
   valid: false;
-  error: any;
+  error: unknown;
 }
 
 // Search types

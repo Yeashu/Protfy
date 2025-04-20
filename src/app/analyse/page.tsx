@@ -1,6 +1,7 @@
 import React from 'react'
 import NavBar from '@/components/NavBar'
 import ProtfolioAnalysis from '@/components/ProtfolioAnalysis'
+import ProtfolioInfo from '@/components/ProtfolioInfo'
 
 function Analysis() {
   return (
@@ -11,6 +12,7 @@ function Analysis() {
         <p className="text-gray-600 mb-8">
           Analyse your investment portfolio and get actionable insights powered by AI.
         </p>
+        <ProtfolioInfo/>
         <ProtfolioAnalysis />
       </div>
     </div>

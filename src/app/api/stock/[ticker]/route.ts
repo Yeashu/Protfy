@@ -7,9 +7,9 @@ yahooFinance.suppressNotices(["yahooSurvey"]);
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { ticker: string } }
+  { params }: { params: Promise<{ ticker: string }> }
 ) {
-  const { ticker } = params;
+  const { ticker } = await params;
 
   try {
     const quote = await yahooFinance.quote(ticker);

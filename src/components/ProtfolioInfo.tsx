@@ -2,7 +2,7 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react'
 import { PortfolioContext } from '../context/ProtfolioContext'
 import { getLivePrice } from '../lib/stockUtils'
-import type { LivePriceData, LivePricesMap } from '@/types/stock'
+import type { LivePricesMap } from '@/types/stock'
 
 // Component-specific types
 interface ProfitLossResult {
