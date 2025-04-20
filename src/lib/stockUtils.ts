@@ -1,6 +1,17 @@
 import { StockApiSuccessResponse, StockApiErrorResponse, Stock } from '@/types/stock';
 import { PortfolioAnalysisRequest, PortfolioAnalysisResponse } from '@/types/portfolio';
 
+const search = async (query: string) => {
+    try{
+        const response = await fetch(`/api/search?q=${query}`)
+        const searchResult = await response.json();
+        return searchResult.quotes;
+    } catch (error){
+        console.error(error);
+        return [];
+    }
+}
+
 const validateTicker = async (ticker: string): Promise<boolean> => {
     try {
         const response = await fetch(`/api/stock/${ticker}`);
@@ -55,4 +66,4 @@ const getPortfolioAnalysis = async (stocks: Stock[]): Promise<string> => {
     }
 }
 
-export {validateTicker, getLivePrice, getPortfolioAnalysis}
+export {validateTicker, getLivePrice, getPortfolioAnalysis, search}
