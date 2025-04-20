@@ -10,12 +10,14 @@ export type Stock = {
 type PortfolioContextType = {
   stocks: Stock[]
   addStock: (stock: Stock) => void
+  removeStock: (ticker: string) => void
   count: number
 }
 
 export const PortfolioContext = createContext<PortfolioContextType>({
   stocks: [],
   addStock: () => {},
+  removeStock: () => {},
   count: 0,
 })
 
@@ -70,10 +72,14 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     })
   }
 
+  const removeStock = (ticker: string) => {
+    setStocks(prev => prev.filter(stock => stock.ticker !== ticker));
+  }
+
   const count = stocks.length
 
   return (
-    <PortfolioContext.Provider value={{ stocks, addStock, count }}>
+    <PortfolioContext.Provider value={{ stocks, addStock, removeStock, count }}>
       {children}
     </PortfolioContext.Provider>
   )
