@@ -14,5 +14,5 @@ export interface PortfolioAnalysisResponse {
 }
 
 export interface PortfolioAnalysisRequest {
-  portfolioData: string;
+  portfolioData: Stock[];
 }

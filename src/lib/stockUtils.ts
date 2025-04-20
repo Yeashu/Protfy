@@ -1,4 +1,4 @@
-import { StockApiSuccessResponse, StockApiErrorResponse } from '@/types/stock';
+import { StockApiSuccessResponse, StockApiErrorResponse, Stock } from '@/types/stock';
 import { PortfolioAnalysisRequest, PortfolioAnalysisResponse } from '@/types/portfolio';
 
 const validateTicker = async (ticker: string): Promise<boolean> => {
@@ -32,14 +32,14 @@ const getLivePrice = async (ticker: string): Promise<number|null> => {
     }
 }
 
-const getPortfolioAnalysis = async (portfolioData: string): Promise<string> => {
+const getPortfolioAnalysis = async (stocks: Stock[]): Promise<string> => {
     try {
         const response = await fetch('/api/analyse/protfolio', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ portfolioData } as PortfolioAnalysisRequest),
+            body: JSON.stringify({ portfolioData: stocks } as PortfolioAnalysisRequest),
         });
         
         const data = await response.json() as PortfolioAnalysisResponse;

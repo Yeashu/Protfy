@@ -2,7 +2,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { getPortfolioAnalysis } from '@/lib/stockUtils';
 import { PortfolioContext } from '@/context/ProtfolioContext';
-import { Stock } from '@/types/stock';
 
 function ProtfolioAnalysis() {
   const { stocks } = useContext(PortfolioContext);
@@ -20,12 +19,8 @@ function ProtfolioAnalysis() {
       setLoading(true);
       setError('');
 
-      // Format the portfolio data for analysis
-      const portfolioFormatted = stocks.map(stock => 
-        `${stock.ticker}: ${stock.quantity} shares at $${stock.avgPrice.toFixed(2)}`
-      ).join('\n');
-
-      const result = await getPortfolioAnalysis(portfolioFormatted);
+      // Pass the stocks array to getPortfolioAnalysis
+      const result = await getPortfolioAnalysis(stocks);
       setAnalysis(result);
     } catch (err) {
       setError('Failed to analyze portfolio. Please try again.');
