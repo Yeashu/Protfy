@@ -1,5 +1,5 @@
 "use client"
-import React, { createContext, useState } from 'react'
+import React, { createContext, useState, useEffect } from 'react'
 
 export type Stock = {
   ticker: string
@@ -20,7 +20,22 @@ export const PortfolioContext = createContext<PortfolioContextType>({
 })
 
 export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [stocks, setStocks] = useState<Stock[]>([])
+  // Initialize state with data from localStorage if available
+  const [stocks, setStocks] = useState<Stock[]>(() => {
+    // skip if the Server Side Rendering is going on
+    if (typeof window !== 'undefined') {
+      const savedStocks = localStorage.getItem('portfolioStocks');
+      return savedStocks ? JSON.parse(savedStocks) : [];
+    }
+    return [];
+  });
+
+  // Save to localStorage whenever stocks change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('portfolioStocks', JSON.stringify(stocks));
+    }
+  }, [stocks]);
 
   const addStock = (stock: Stock) => {
     setStocks(prev => {
