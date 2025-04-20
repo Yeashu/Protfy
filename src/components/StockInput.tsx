@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useContext } from 'react'
 import { PortfolioContext } from '../context/ProtfolioContext'
+import { validateTicker } from '@/lib/stockUtils'
 
 function StockInput() {
   const [ticker, setTicker] = useState('')
@@ -8,12 +9,20 @@ function StockInput() {
   const [avgPrice, setAvgPrice] = useState(0)
   const { addStock } = useContext(PortfolioContext)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // check if ticker is valid
+    const isValid = await validateTicker(ticker);
+
+    if(isValid){
     addStock({ ticker, quantity, avgPrice })
     setTicker('')
     setQuantity(1)
-    setAvgPrice(0)
+    setAvgPrice(0)}
+    else {
+      alert("Invalid ticker symbol. Please recheck.");
+    }
   }
 
   return (
