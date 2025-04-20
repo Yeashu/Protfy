@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useContext, useEffect } from 'react';
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { getPortfolioAnalysis } from '@/lib/stockUtils';
 import { PortfolioContext } from '@/context/ProtfolioContext';
-import type { Stock } from '../types/stock';
-import type { PortfolioAnalysisResponse, PortfolioAnalysisRequest } from '../types/portfolio';
 
 function ProtfolioAnalysis() {
   const { stocks } = useContext(PortfolioContext);
@@ -81,7 +81,7 @@ function ProtfolioAnalysis() {
         <div className="border rounded-md p-6 bg-gray-50">
           <h3 className="text-xl font-bold mb-4">Analysis Results</h3>
           <div className="whitespace-pre-line">
-            {analysis}
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{analysis}</ReactMarkdown>
           </div>
         </div>
       )}

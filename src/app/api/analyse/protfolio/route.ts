@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
         try {
           // get stock data from yahoo
           const quote = await yahooFinance.quote(stock.ticker);
+          const insight = await yahooFinance.insights(stock.ticker);
           
           // Calculate profit/loss
           const costBasis = stock.quantity * stock.avgPrice;
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
           
           return {
             ...stock,
-            quote,
+            insight,
             costBasis,
             currentValue,
             profitLoss,
@@ -51,14 +52,13 @@ Portfolio:
 ${JSON.stringify(stocksWithData, null, 2)}
 
 Please provide:
-1. A comprehensive analysis of each stock including strengths, weaknesses, and potential risks
+1. A comprehensive detailed analysis of each stock including strengths, weaknesses, and potential risks
 2. Portfolio diversification assessment across sectors and industries
 3. Recommendations for rebalancing or optimization
 4. A rating for each stock on a scale of 0 to 5 (where 0 is poor and 5 is excellent)
 5. An overall portfolio health score and risk assessment
 6. Suggestions for potential new investments that would complement the existing portfolio
 7. Pay special attention to the profit/loss (profitLoss field) of each position and include this in your analysis
-
 Format your analysis with clear sections and bullet points where appropriate.
 `;
 
