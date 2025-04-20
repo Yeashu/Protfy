@@ -2,6 +2,7 @@
 import React, { useState, useContext } from 'react'
 import { PortfolioContext } from '../context/ProtfolioContext'
 import { validateTicker } from '@/lib/stockUtils'
+import { Stock } from '@/types/stock'
 
 function StockInput() {
   const [ticker, setTicker] = useState('')
@@ -16,11 +17,12 @@ function StockInput() {
     const isValid = await validateTicker(ticker);
 
     if(isValid){
-    addStock({ ticker, quantity, avgPrice })
-    setTicker('')
-    setQuantity(1)
-    setAvgPrice(0)}
-    else {
+      const stockToAdd: Stock = { ticker, quantity, avgPrice };
+      addStock(stockToAdd)
+      setTicker('')
+      setQuantity(1)
+      setAvgPrice(0)
+    } else {
       alert("Invalid ticker symbol. Please recheck.");
     }
   }

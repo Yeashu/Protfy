@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import yahooFinance from "yahoo-finance2";
+import { StockApiSuccessResponse, StockApiErrorResponse } from "@/types/stock";
 
 //remove annoying notification
 yahooFinance.suppressNotices(["yahooSurvey"]);
@@ -15,12 +16,12 @@ export async function GET(
 
     // if the ticker is valid return stock data
     if (quote) {
-      return NextResponse.json({
+      return NextResponse.json<StockApiSuccessResponse>({
         valid: true,
         info: quote,
       });
     } else {
-      return NextResponse.json(
+      return NextResponse.json<StockApiErrorResponse>(
         {
           valid: false,
           error: "Invalid ticker",
@@ -32,7 +33,7 @@ export async function GET(
     }
   } catch (error) {
     // else return error
-    return NextResponse.json(
+    return NextResponse.json<StockApiErrorResponse>(
       {
         valid: false,
         error: error,

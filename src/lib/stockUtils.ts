@@ -1,17 +1,21 @@
-const validateTicker = async (ticker: string):Promise<boolean> => {
+import { StockApiSuccessResponse, StockApiErrorResponse } from '@/types/stock';
+import { PortfolioAnalysisRequest, PortfolioAnalysisResponse } from '@/types/portfolio';
+
+const validateTicker = async (ticker: string): Promise<boolean> => {
     try {
         const response = await fetch(`/api/stock/${ticker}`);
-        const data = await response.json();
+        const data = await response.json() as StockApiSuccessResponse | StockApiErrorResponse;
         return data.valid;
     } catch (error){
         return false;
     }
 }
 
-const getLivePrice = async (ticker: string):Promise<number|null> =>{
+const getLivePrice = async (ticker: string): Promise<number|null> => {
     try {
         const response = await fetch(`/api/stock/${ticker}`);
-        const data = await response.json();
+        const data = await response.json() as StockApiSuccessResponse | StockApiErrorResponse;
+        
         // if data is present 
         if(data){
             // if ticker was valid and we can get price
@@ -28,23 +32,23 @@ const getLivePrice = async (ticker: string):Promise<number|null> =>{
     }
 }
 
-const getPortfolioAnalysis = async (portfolioData: any): Promise<string> => {
+const getPortfolioAnalysis = async (portfolioData: string): Promise<string> => {
     try {
         const response = await fetch('/api/analyse/protfolio', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ portfolioData }),
+            body: JSON.stringify({ portfolioData } as PortfolioAnalysisRequest),
         });
         
-        const data = await response.json();
+        const data = await response.json() as PortfolioAnalysisResponse;
         
         if (!response.ok) {
-            throw new Error(data.error || 'Failed to analyze portfolio');
+            throw new Error((data as any).error || 'Failed to analyze portfolio');
         }
         
-        return data.analysis;
+        return data.analysis || 'No analysis available';
     } catch (error) {
         console.error(`Error analyzing portfolio: ${error}`);
         throw error;

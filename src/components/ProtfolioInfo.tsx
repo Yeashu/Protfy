@@ -2,17 +2,7 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react'
 import { PortfolioContext } from '../context/ProtfolioContext'
 import { getLivePrice } from '../lib/stockUtils'
-
-// Define types for the component
-interface LivePricesMap {
-  [ticker: string]: number | null;
-}
-
-interface ProfitLossResult {
-  amount: number | null;
-  percentage: number | null;
-  isProfit?: boolean;
-}
+import { LivePricesMap, ProfitLossResult, TotalProfitLoss } from '@/types/stock'
 
 const ProtfolioInfo: React.FC = () => {
   const { stocks, count, removeStock } = useContext(PortfolioContext)
@@ -44,7 +34,7 @@ const ProtfolioInfo: React.FC = () => {
   };
 
   // Calculate total profit/loss across all stocks
-  const totalProfitLoss = useMemo(() => {
+  const totalProfitLoss = useMemo<TotalProfitLoss>(() => {
     let totalAmount = 0;
     let totalInvestment = 0;
     

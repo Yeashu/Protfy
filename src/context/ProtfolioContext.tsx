@@ -1,18 +1,7 @@
 "use client"
 import React, { createContext, useState, useEffect } from 'react'
-
-export type Stock = {
-  ticker: string
-  quantity: number
-  avgPrice: number
-}
-
-type PortfolioContextType = {
-  stocks: Stock[]
-  addStock: (stock: Stock) => void
-  removeStock: (ticker: string) => void
-  count: number
-}
+import { Stock } from '@/types/stock'
+import { PortfolioContextType } from '@/types/portfolio'
 
 export const PortfolioContext = createContext<PortfolioContextType>({
   stocks: [],

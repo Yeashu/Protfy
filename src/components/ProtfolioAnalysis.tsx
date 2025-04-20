@@ -2,12 +2,13 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { getPortfolioAnalysis } from '@/lib/stockUtils';
 import { PortfolioContext } from '@/context/ProtfolioContext';
+import { Stock } from '@/types/stock';
 
 function ProtfolioAnalysis() {
   const { stocks } = useContext(PortfolioContext);
-  const [analysis, setAnalysis] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [analysis, setAnalysis] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
   const handleAnalyzePortfolio = async () => {
     if (stocks.length === 0) {
