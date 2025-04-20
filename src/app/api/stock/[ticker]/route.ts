@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import yahooFinance from "yahoo-finance2";
-import { StockApiSuccessResponse, StockApiErrorResponse } from "@/types/stock";
+import type { StockApiSuccessResponse, StockApiErrorResponse } from "@/types/stock";
 
 //remove annoying notification
 yahooFinance.suppressNotices(["yahooSurvey"]);
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ ticker: string }> }
+  { params }: { params: { ticker: string } }
 ) {
-  const { ticker } = await params;
+  const { ticker } = params;
 
   try {
     const quote = await yahooFinance.quote(ticker);
@@ -36,7 +36,7 @@ export async function GET(
     return NextResponse.json<StockApiErrorResponse>(
       {
         valid: false,
-        error: error,
+        error,
       },
       {
         status: 404,

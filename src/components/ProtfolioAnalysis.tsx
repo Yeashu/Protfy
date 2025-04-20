@@ -2,6 +2,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { getPortfolioAnalysis } from '@/lib/stockUtils';
 import { PortfolioContext } from '@/context/ProtfolioContext';
+import type { Stock } from '../types/stock';
+import type { PortfolioAnalysisResponse, PortfolioAnalysisRequest } from '../types/portfolio';
 
 function ProtfolioAnalysis() {
   const { stocks } = useContext(PortfolioContext);

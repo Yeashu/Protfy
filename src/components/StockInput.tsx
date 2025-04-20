@@ -2,14 +2,31 @@
 import React, { useState, useContext, useEffect, useRef } from 'react'
 import { PortfolioContext } from '../context/ProtfolioContext'
 import { validateTicker, search } from '@/lib/stockUtils'
-import { Stock } from '@/types/stock'
+import type { SearchResult, Stock } from '@/types/stock'
 
-function StockInput() {
+// Component-specific types
+interface StockInputProps {
+  onSubmit?: () => void;
+}
+
+interface StockFormData {
+  ticker: string;
+  quantity: string;
+  avgPrice: string;
+}
+
+interface ValidationErrors {
+  ticker?: string;
+  quantity?: string;
+  avgPrice?: string;
+}
+
+const StockInput: React.FC<StockInputProps> = ({ onSubmit }) => {
   const [ticker, setTicker] = useState('')
   const [quantity, setQuantity] = useState(1)
   const [avgPrice, setAvgPrice] = useState(0)
   const { addStock } = useContext(PortfolioContext)
-  const [searchResult, setSearchResult] = useState([]);
+  const [searchResult, setSearchResult] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
   const searchTimer = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);

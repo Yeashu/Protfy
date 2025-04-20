@@ -1,6 +1,5 @@
 // Types for portfolio context and analysis
-
-import { Stock } from './stock';
+import type { Stock } from './stock';
 
 export interface PortfolioContextType {
   stocks: Stock[];
@@ -9,10 +8,12 @@ export interface PortfolioContextType {
   count: number;
 }
 
-export interface PortfolioAnalysisResponse {
-  analysis: string | undefined;
-}
-
+// Portfolio analysis types
 export interface PortfolioAnalysisRequest {
   portfolioData: Stock[];
+}
+
+export interface PortfolioAnalysisResponse {
+  analysis: string | undefined;
+  error?: string;
 }

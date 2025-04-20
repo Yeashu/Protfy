@@ -1,13 +1,13 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
-import { PortfolioAnalysisRequest, PortfolioAnalysisResponse } from "@/types/portfolio";
-import { Stock } from "@/types/stock";
+import type { PortfolioAnalysisRequest, PortfolioAnalysisResponse } from "@/types/portfolio";
+import type { Stock } from "@/types/stock";
 
 const ai = new GoogleGenAI({apiKey:process.env.GEMINI_API_KEY});
 
 export async function POST(request: NextRequest) {
   try {
-    const { portfolioData }: { portfolioData: Stock[] } = await request.json();
+    const { portfolioData } = (await request.json()) as PortfolioAnalysisRequest;
 
     // Format the portfolio data for analysis
     const formattedPortfolio = portfolioData.map(stock => 
@@ -26,8 +26,11 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error analyzing portfolio with Gemini:", error);
-    return NextResponse.json(
-      { error: "Failed to analyze portfolio" },
+    return NextResponse.json<PortfolioAnalysisResponse>(
+      { 
+        analysis: undefined,
+        error: "Failed to analyze portfolio" 
+      },
       { status: 500 }
     );
   }

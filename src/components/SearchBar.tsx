@@ -1,10 +1,20 @@
 "use client";
-import { search } from "@/lib/stockUtils";
 import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { search } from "@/lib/stockUtils";
+import type { SearchResult } from "@/types/stock";
 
-function SearchBar() {
+interface SearchBarProps {
+  placeholder?: string;
+  className?: string;
+}
+
+const SearchBar: React.FC<SearchBarProps> = ({
+  placeholder = "Search stocks...",
+  className = "",
+}) => {
   const [query, setQuery] = useState("");
-  const [result, setResult] = useState([]);
+  const [result, setResult] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
   const timer = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -21,9 +31,9 @@ function SearchBar() {
     }
     return () => clearTimeout(timer.current as number | undefined);
   }, [query, showResults]);
+
   const handleResultClick = (symbol: string) => {
     setQuery(symbol);
-    //setQuery('');
     setResult([]);
     setShowResults(false);
   };
@@ -46,17 +56,15 @@ function SearchBar() {
 
   return (
     <form
-      className="flex items-center gap-2"
+      className={`flex items-center gap-2 ${className}`}
       onSubmit={(e) => e.preventDefault()}
     >
-      {" "}
-      {/* Prevent default form submission for now */}
       <div className="relative" ref={containerRef} onBlur={handleBlur}>
         <input
           onChange={(e) => setQuery(e.target.value)}
           onFocus={handleFocus}
           type="text"
-          placeholder="Search stocks..."
+          placeholder={placeholder}
           className="border rounded px-2 py-1"
           value={query}
           autoComplete="off"
@@ -87,6 +95,6 @@ function SearchBar() {
       </button>
     </form>
   );
-}
+};
 
 export default SearchBar;

@@ -1,25 +1,9 @@
-// Types related to stock information and tracking
+// Types related to stock information
 
 export interface Stock {
   ticker: string;
   quantity: number;
   avgPrice: number;
-}
-
-export interface LivePricesMap {
-  [ticker: string]: number | null;
-}
-
-export interface ProfitLossResult {
-  amount: number | null;
-  percentage: number | null;
-  isProfit?: boolean;
-}
-
-export interface TotalProfitLoss {
-  amount: number;
-  percentage: number;
-  isProfit: boolean;
 }
 
 // Stock API response types
@@ -31,4 +15,24 @@ export interface StockApiSuccessResponse {
 export interface StockApiErrorResponse {
   valid: false;
   error: any;
+}
+
+// Search types
+export interface SearchResponseData {
+  quotes: SearchResult[];
+}
+
+export interface SearchResult {
+  symbol: string;
+  shortname?: string;
+}
+
+// Live price types
+export interface LivePriceData {
+  price: number | null;
+  currency: string | null;
+}
+
+export interface LivePricesMap {
+  [ticker: string]: LivePriceData | undefined;
 }

@@ -2,7 +2,20 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react'
 import { PortfolioContext } from '../context/ProtfolioContext'
 import { getLivePrice } from '../lib/stockUtils'
-import { LivePricesMap, ProfitLossResult, TotalProfitLoss } from '@/types/stock'
+import type { LivePriceData, LivePricesMap } from '@/types/stock'
+
+// Component-specific types
+interface ProfitLossResult {
+  amount: number | null;
+  percentage: number | null;
+  isProfit?: boolean;
+}
+
+interface TotalProfitLoss {
+  amount: number;
+  percentage: number;
+  isProfit: boolean;
+}
 
 const ProtfolioInfo: React.FC = () => {
   const { stocks, count, removeStock } = useContext(PortfolioContext)
@@ -12,6 +25,7 @@ const ProtfolioInfo: React.FC = () => {
     const fetchLivePrices = async () => {
       const prices: LivePricesMap = {}
       for (const stock of stocks) {
+        // Assuming getLivePrice now returns { price: number | null, currency: string | null }
         prices[stock.ticker] = await getLivePrice(stock.ticker)
       }
       setLivePrices(prices)
@@ -20,11 +34,18 @@ const ProtfolioInfo: React.FC = () => {
     fetchLivePrices()
   }, [stocks])
 
+  // Helper function to format currency
+  const formatCurrency = (value: number | null, currency: string | null): string => {
+    if (value === null || value === undefined) return 'N/A';
+    const symbol = currency === 'INR' ? '₹' : '$'; 
+    return `${symbol}${value.toFixed(2)}`;
+  };
+
   const calculateProfitLoss = (avgPrice: number, livePrice: number | null, quantity: number): ProfitLossResult => {
     if (livePrice === null) return { amount: null, percentage: null };
     
     const amount = (livePrice - avgPrice) * quantity;
-    const percentage = ((livePrice - avgPrice) / avgPrice) * 100;
+    const percentage = avgPrice !== 0 ? ((livePrice - avgPrice) / avgPrice) * 100 : 0; // Avoid division by zero
     
     return { 
       amount, 
@@ -33,28 +54,41 @@ const ProtfolioInfo: React.FC = () => {
     };
   };
 
-  // Calculate total profit/loss across all stocks
-  const totalProfitLoss = useMemo<TotalProfitLoss>(() => {
-    let totalAmount = 0;
-    let totalInvestment = 0;
+  // Calculate total profit/loss across all stocks, converting to INR
+  const totalProfitLoss = useMemo<TotalProfitLoss & { currency: string | null }>(() => {
+    const conversionRateUSDtoINR = 85; // 1 USD = 85 INR
+    let totalAmountINR = 0;
+    let totalInvestmentINR = 0;
     
     stocks.forEach(stock => {
-      const livePrice = livePrices[stock.ticker];
-      if (livePrice !== null && livePrice !== undefined) {
+      const liveData = livePrices[stock.ticker];
+      if (liveData?.price !== null && liveData?.price !== undefined && liveData.currency) {
         const investmentAmount = stock.avgPrice * stock.quantity;
-        const currentValue = livePrice * stock.quantity;
+        const currentValue = liveData.price * stock.quantity;
         
-        totalAmount += currentValue - investmentAmount;
-        totalInvestment += investmentAmount;
+        let investmentAmountINR = investmentAmount;
+        let currentValueINR = currentValue;
+
+        // Convert to INR if currency is not INR (assuming USD for now)
+        if (liveData.currency === 'USD') { // Or check for other non-INR currencies
+          investmentAmountINR = investmentAmount * conversionRateUSDtoINR;
+          currentValueINR = currentValue * conversionRateUSDtoINR;
+        } 
+        // Add more currency conversions here if needed
+        // else if (liveData.currency === 'EUR') { ... }
+        
+        totalAmountINR += currentValueINR - investmentAmountINR;
+        totalInvestmentINR += investmentAmountINR;
       }
     });
     
-    const totalPercentage = totalInvestment > 0 ? (totalAmount / totalInvestment) * 100 : 0;
+    const totalPercentage = totalInvestmentINR > 0 ? (totalAmountINR / totalInvestmentINR) * 100 : 0;
     
     return {
-      amount: totalAmount,
+      amount: totalAmountINR, // Amount is now in INR
       percentage: totalPercentage,
-      isProfit: totalAmount >= 0
+      isProfit: totalAmountINR >= 0,
+      currency: 'INR' // Display currency is INR
     };
   }, [stocks, livePrices]);
 
@@ -64,18 +98,21 @@ const ProtfolioInfo: React.FC = () => {
       <div>Total Stocks: {count}</div>
       <ul className="mt-2">
         {stocks.map((stock, idx) => {
-          const profitLoss = livePrices[stock.ticker] 
-            ? calculateProfitLoss(stock.avgPrice, livePrices[stock.ticker], stock.quantity)
+          const liveData = livePrices[stock.ticker];
+          const profitLoss = liveData?.price !== null && liveData?.price !== undefined
+            ? calculateProfitLoss(stock.avgPrice, liveData.price, stock.quantity)
             : null;
+          const stockDisplayCurrency = liveData?.currency ?? null; 
             
           return (
             <li key={idx} className="mb-2 flex flex-col border-b pb-2">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="font-semibold">{stock.ticker}</span> - Qty: {stock.quantity}, Avg Price: ${stock.avgPrice.toFixed(2)}
-                  {livePrices[stock.ticker] !== undefined && (
+                  {/* Display individual stock avg price and live price in their original currency */}
+                  <span className="font-semibold">{stock.ticker}</span> - Qty: {stock.quantity}, Avg Price: {formatCurrency(stock.avgPrice, stockDisplayCurrency)} 
+                  {liveData !== undefined && (
                     <span className="ml-2">
-                      Live: ${livePrices[stock.ticker] ? livePrices[stock.ticker]?.toFixed(2) : 'N/A'}
+                      Live: {formatCurrency(liveData.price, stockDisplayCurrency)} 
                     </span>
                   )}
                 </div>
@@ -89,7 +126,8 @@ const ProtfolioInfo: React.FC = () => {
               
               {profitLoss && profitLoss.amount !== null && (
                 <div className={`text-sm mt-1 ${profitLoss.isProfit ? 'text-green-600' : 'text-red-600'}`}>
-                  P/L: ${profitLoss.amount.toFixed(2)} 
+                   {/* Display individual P/L in the stock's original currency */}
+                  P/L: {formatCurrency(profitLoss.amount, stockDisplayCurrency)} 
                   <span className="ml-1">
                     ({profitLoss.isProfit ? '+' : ''}{profitLoss.percentage && profitLoss.percentage.toFixed(2)}%)
                   </span>
@@ -103,9 +141,10 @@ const ProtfolioInfo: React.FC = () => {
       {/* Display total profit/loss */}
       {stocks.length > 0 && Object.keys(livePrices).length > 0 && (
         <div className="mt-4 pt-3 border-t">
-          <div className="font-semibold">Total Portfolio:</div>
+          <div className="font-semibold">Total Portfolio (INR):</div> {/* Indicate display currency */}
           <div className={`text-sm mt-1 ${totalProfitLoss.isProfit ? 'text-green-600' : 'text-red-600'} font-bold`}>
-            Total P/L: ${totalProfitLoss.amount.toFixed(2)} 
+             {/* Use formatCurrency with the calculated INR amount and 'INR' currency */}
+            Total P/L: {formatCurrency(totalProfitLoss.amount, totalProfitLoss.currency)} 
             <span className="ml-1">
               ({totalProfitLoss.isProfit ? '+' : ''}{totalProfitLoss.percentage && totalProfitLoss.percentage.toFixed(2)}%)
             </span>
