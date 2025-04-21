@@ -15,6 +15,7 @@ interface TotalProfitLoss {
   amount: number;
   percentage: number;
   isProfit: boolean;
+  totalCurrentValueINR: number; // Add total current value
 }
 
 const ProtfolioInfo: React.FC = () => {
@@ -54,18 +55,19 @@ const ProtfolioInfo: React.FC = () => {
     };
   };
 
-  // Calculate total profit/loss across all stocks, converting to INR
+  // Calculate total profit/loss and current value across all stocks, converting to INR
   const totalProfitLoss = useMemo<TotalProfitLoss & { currency: string | null }>(() => {
     const conversionRateUSDtoINR = 85; // 1 USD = 85 INR
     let totalAmountINR = 0;
     let totalInvestmentINR = 0;
-    
+    let totalCurrentValueINR = 0; // Initialize total current value
+
     stocks.forEach(stock => {
       const liveData = livePrices[stock.ticker];
       if (liveData?.price !== null && liveData?.price !== undefined && liveData.currency) {
         const investmentAmount = stock.avgPrice * stock.quantity;
         const currentValue = liveData.price * stock.quantity;
-        
+
         let investmentAmountINR = investmentAmount;
         let currentValueINR = currentValue;
 
@@ -73,22 +75,24 @@ const ProtfolioInfo: React.FC = () => {
         if (liveData.currency === 'USD') { // Or check for other non-INR currencies
           investmentAmountINR = investmentAmount * conversionRateUSDtoINR;
           currentValueINR = currentValue * conversionRateUSDtoINR;
-        } 
+        }
         // Add more currency conversions here if needed
         // else if (liveData.currency === 'EUR') { ... }
-        
+
         totalAmountINR += currentValueINR - investmentAmountINR;
         totalInvestmentINR += investmentAmountINR;
+        totalCurrentValueINR += currentValueINR; // Accumulate current value in INR
       }
     });
-    
+
     const totalPercentage = totalInvestmentINR > 0 ? (totalAmountINR / totalInvestmentINR) * 100 : 0;
-    
+
     return {
       amount: totalAmountINR, // Amount is now in INR
       percentage: totalPercentage,
       isProfit: totalAmountINR >= 0,
-      currency: 'INR' // Display currency is INR
+      currency: 'INR', // Display currency is INR
+      totalCurrentValueINR: totalCurrentValueINR // Return total current value
     };
   }, [stocks, livePrices]);
 
@@ -138,13 +142,18 @@ const ProtfolioInfo: React.FC = () => {
         })}
       </ul>
       
-      {/* Display total profit/loss */}
+      {/* Display total profit/loss and current value */}
       {stocks.length > 0 && Object.keys(livePrices).length > 0 && (
         <div className="mt-4 pt-3 border-t">
           <div className="font-semibold">Total Portfolio (INR):</div> {/* Indicate display currency */}
+          {/* Display Current Portfolio Value */}
+          <div className="text-sm mt-1 font-bold">
+            Current Value: {formatCurrency(totalProfitLoss.totalCurrentValueINR, totalProfitLoss.currency)}
+          </div>
+          {/* Display Total P/L */}
           <div className={`text-sm mt-1 ${totalProfitLoss.isProfit ? 'text-green-600' : 'text-red-600'} font-bold`}>
              {/* Use formatCurrency with the calculated INR amount and 'INR' currency */}
-            Total P/L: {formatCurrency(totalProfitLoss.amount, totalProfitLoss.currency)} 
+            Total P/L: {formatCurrency(totalProfitLoss.amount, totalProfitLoss.currency)}
             <span className="ml-1">
               ({totalProfitLoss.isProfit ? '+' : ''}{totalProfitLoss.percentage && totalProfitLoss.percentage.toFixed(2)}%)
             </span>

@@ -2,6 +2,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { search } from "@/lib/stockUtils";
 import type { SearchResult } from "@/types/stock";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface SearchBarProps {
   placeholder?: string;
@@ -32,12 +34,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
     return () => clearTimeout(timer.current as number | undefined);
   }, [query, showResults]);
 
-  const handleResultClick = (symbol: string) => {
-    setQuery(symbol);
-    setResult([]);
-    setShowResults(false);
-  };
-
   const handleFocus = () => {
     setShowResults(true);
   };
@@ -53,11 +49,19 @@ const SearchBar: React.FC<SearchBarProps> = ({
       }, 150); // Delay to allow clicks on results
     }
   };
+  const router = useRouter();
+
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (query.trim()) {
+      router.push(`/stock/${query.trim()}`);
+    }
+  }
 
   return (
     <form
       className={`flex items-center gap-2 ${className}`}
-      onSubmit={(e) => e.preventDefault()}
+      onSubmit={submit}
     >
       <div className="relative" ref={containerRef} onBlur={handleBlur}>
         <input
@@ -76,13 +80,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
               // Only render items that have a symbol property (StockResult type)
               if ('symbol' in val) {
                 return (
+                  <Link href={`/stock/${val.symbol}`}>
                   <li
                     key={val.symbol}
                     className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                    onMouseDown={() => handleResultClick(val.symbol)}
                   >
                     {`${val.shortname || val.longname || val.symbol} (${val.symbol})`}
                   </li>
+                  </Link>
                 );
               }
               return null; // Skip rendering items without a symbol
