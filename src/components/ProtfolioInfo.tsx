@@ -97,65 +97,72 @@ const ProtfolioInfo: React.FC = () => {
   }, [stocks, livePrices]);
 
   return (
-    <div className="p-4 border rounded max-w-md">
-      <h2 className="text-lg font-bold mb-2">Portfolio Info</h2>
-      <div>Total Stocks: {count}</div>
-      <ul className="mt-2">
-        {stocks.map((stock, idx) => {
-          const liveData = livePrices[stock.ticker];
-          const profitLoss = liveData?.price !== null && liveData?.price !== undefined
-            ? calculateProfitLoss(stock.avgPrice, liveData.price, stock.quantity)
-            : null;
-          const stockDisplayCurrency = liveData?.currency ?? null; 
-            
-          return (
-            <li key={idx} className="mb-2 flex flex-col border-b pb-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  {/* Display individual stock avg price and live price in their original currency */}
-                  <span className="font-semibold">{stock.ticker}</span> - Qty: {stock.quantity}, Avg Price: {formatCurrency(stock.avgPrice, stockDisplayCurrency)} 
-                  {liveData !== undefined && (
-                    <span className="ml-2">
-                      Live: {formatCurrency(liveData.price, stockDisplayCurrency)} 
-                    </span>
-                  )}
-                </div>
-                <button 
-                  onClick={() => removeStock(stock.ticker)} 
-                  className="ml-2 bg-red-500 text-white px-2 py-1 rounded text-xs"
-                >
-                  Remove
-                </button>
-              </div>
+    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">Portfolio Summary</h2>
+      <div className="mb-3 text-gray-700">Total Stocks: <span className="font-medium">{count}</span></div>
+      {stocks.length > 0 ? (
+        <div className="divide-y divide-gray-200">
+          {stocks.map((stock, idx) => {
+            const liveData = livePrices[stock.ticker];
+            const profitLoss = liveData?.price !== null && liveData?.price !== undefined
+              ? calculateProfitLoss(stock.avgPrice, liveData.price, stock.quantity)
+              : null;
+            const stockDisplayCurrency = liveData?.currency ?? null; 
               
-              {profitLoss && profitLoss.amount !== null && (
-                <div className={`text-sm mt-1 ${profitLoss.isProfit ? 'text-green-600' : 'text-red-600'}`}>
-                   {/* Display individual P/L in the stock's original currency */}
-                  P/L: {formatCurrency(profitLoss.amount, stockDisplayCurrency)} 
-                  <span className="ml-1">
-                    ({profitLoss.isProfit ? '+' : ''}{profitLoss.percentage && profitLoss.percentage.toFixed(2)}%)
-                  </span>
+            return (
+              <div key={idx} className="py-3">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                    <span className="font-semibold text-gray-900">{stock.ticker}</span>
+                    <span className="text-sm text-gray-600">Qty: {stock.quantity}</span>
+                    <span className="text-sm text-gray-600">Avg: {formatCurrency(stock.avgPrice, stockDisplayCurrency)}</span>
+                    {liveData !== undefined && (
+                      <span className="text-sm">
+                        Live: {formatCurrency(liveData.price, stockDisplayCurrency)}
+                      </span>
+                    )}
+                  </div>
+                  <button 
+                    onClick={() => removeStock(stock.ticker)} 
+                    className="bg-red-100 hover:bg-red-200 text-red-600 px-3 py-1 rounded text-xs font-medium transition-colors duration-150"
+                  >
+                    Remove
+                  </button>
                 </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+                
+                {profitLoss && profitLoss.amount !== null && (
+                  <div className={`text-sm ${profitLoss.isProfit ? 'text-green-600' : 'text-red-600'} font-medium`}>
+                    P/L: {formatCurrency(profitLoss.amount, stockDisplayCurrency)} 
+                    <span className="ml-1">
+                      ({profitLoss.isProfit ? '+' : ''}{profitLoss.percentage && profitLoss.percentage.toFixed(2)}%)
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="text-gray-500 italic py-4">No stocks in portfolio. Add stocks to track your investments.</p>
+      )}
       
       {/* Display total profit/loss and current value */}
       {stocks.length > 0 && Object.keys(livePrices).length > 0 && (
-        <div className="mt-4 pt-3 border-t">
-          <div className="font-semibold">Total Portfolio (INR):</div> {/* Indicate display currency */}
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="font-semibold mb-2 text-gray-800">Total Portfolio (INR):</div>
           {/* Display Current Portfolio Value */}
-          <div className="text-sm mt-1 font-bold">
-            Current Value: {formatCurrency(totalProfitLoss.totalCurrentValueINR, totalProfitLoss.currency)}
+          <div className="text-sm mb-1 font-bold flex justify-between">
+            <span>Current Value:</span>
+            <span>{formatCurrency(totalProfitLoss.totalCurrentValueINR, totalProfitLoss.currency)}</span>
           </div>
           {/* Display Total P/L */}
-          <div className={`text-sm mt-1 ${totalProfitLoss.isProfit ? 'text-green-600' : 'text-red-600'} font-bold`}>
-             {/* Use formatCurrency with the calculated INR amount and 'INR' currency */}
-            Total P/L: {formatCurrency(totalProfitLoss.amount, totalProfitLoss.currency)}
-            <span className="ml-1">
-              ({totalProfitLoss.isProfit ? '+' : ''}{totalProfitLoss.percentage && totalProfitLoss.percentage.toFixed(2)}%)
+          <div className={`text-sm flex justify-between ${totalProfitLoss.isProfit ? 'text-green-600' : 'text-red-600'} font-bold`}>
+            <span>Total P/L:</span>
+            <span>
+              {formatCurrency(totalProfitLoss.amount, totalProfitLoss.currency)}
+              <span className="ml-1">
+                ({totalProfitLoss.isProfit ? '+' : ''}{totalProfitLoss.percentage && totalProfitLoss.percentage.toFixed(2)}%)
+              </span>
             </span>
           </div>
         </div>

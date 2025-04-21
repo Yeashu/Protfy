@@ -36,37 +36,47 @@ function AddToProtfolio({ticker}:{ticker: string}) {
     <div className="inline-block ml-2">
         <button
             onClick={handleToggleInputs}
-            className="bg-blue-500 hover:bg-blue-700 text-white text-xs font-bold py-1 px-2 rounded"
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-1.5 px-3 rounded-md shadow transition-colors duration-150"
         >
             {showInputs ? 'Cancel' : 'Add To Portfolio'}
         </button>
         {showInputs && (
-            <div className="inline-flex items-center ml-2 space-x-2">
-                <input
-                    type="number"
-                    min="1"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    placeholder="Qty"
-                    className="border rounded px-1 py-0.5 text-xs w-12"
-                    onClick={(e) => e.stopPropagation()}
-                />
-                <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={avgPrice}
-                    onChange={(e) => setAvgPrice(e.target.value)}
-                    placeholder="Avg Price"
-                    className="border rounded px-1 py-0.5 text-xs w-16"
-                    onClick={(e) => e.stopPropagation()}
-                />
-                <button
-                    onClick={handleAdd}
-                    className="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded"
-                >
-                    Add
-                </button>
+            <div className="absolute mt-2 p-3 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                <div className="flex flex-col space-y-2">
+                    <div>
+                        <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                        <input
+                            id="quantity"
+                            type="number"
+                            min="1"
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}
+                            placeholder="Qty"
+                            className="border rounded px-2 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="avg-price" className="block text-sm font-medium text-gray-700 mb-1">Average Price</label>
+                        <input
+                            id="avg-price"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={avgPrice}
+                            onChange={(e) => setAvgPrice(e.target.value)}
+                            placeholder="Avg Price"
+                            className="border rounded px-2 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                    <button
+                        onClick={handleAdd}
+                        className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-1.5 px-3 rounded-md shadow transition-colors duration-150 mt-1"
+                    >
+                        Add
+                    </button>
+                </div>
             </div>
         )}
     </div>

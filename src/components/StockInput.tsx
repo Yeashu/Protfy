@@ -69,28 +69,28 @@ const StockInput: React.FC<StockInputProps> = () => {
   }
 
   return (
-    <form className="flex flex-col gap-3 max-w-xs" onSubmit={handleSubmit}>
+    <form className="flex flex-col gap-4 max-w-md" onSubmit={handleSubmit}>
       <div className="relative" ref={containerRef} onBlur={handleBlur}>
-        <label htmlFor="stock-ticker">Stock Ticker:</label>
+        <label htmlFor="stock-ticker" className="block text-gray-700 mb-1">Stock Ticker:</label>
         <input
           id="stock-ticker"
           type="text"
           placeholder="e.g. AAPL, HDFC.NS"
-          className="border rounded px-2 py-1 ml-2 w-full"
+          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           value={ticker}
           onChange={e => setTicker(e.target.value)}
           onFocus={handleFocus}
           autoComplete="off"
         />
         {showResults && searchResult.length > 0 && (
-          <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded shadow-lg z-10 max-h-60 overflow-y-auto">
+          <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
             {searchResult.map((val) => {
               // Check if the result has a symbol property using the 'in' operator
               if ('symbol' in val) {
                 return (
                   <li
                     key={val.symbol}
-                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-150"
                     onMouseDown={() => handleResultClick(val.symbol)}
                   >
                     {`${val.shortname || val.longname || val.symbol} (${val.symbol})`}
@@ -103,33 +103,33 @@ const StockInput: React.FC<StockInputProps> = () => {
         )}
       </div>
       <div>
-        <label htmlFor="quantity">Quantity:</label>
+        <label htmlFor="quantity" className="block text-gray-700 mb-1">Quantity:</label>
         <input
           id="quantity"
           type="number"
           min="1"
           placeholder="e.g. 10"
-          className="border rounded px-2 py-1 ml-2"
+          className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           value={quantity}
           onChange={e => setQuantity(Number(e.target.value))}
         />
       </div>
       <div>
-        <label htmlFor="avg-price">Avg Price:</label>
+        <label htmlFor="avg-price" className="block text-gray-700 mb-1">Avg Price:</label>
         <input
           id="avg-price"
           type="number"
           min="0"
           step="0.01"
           placeholder="e.g. 150.00"
-          className="border rounded px-2 py-1 ml-2"
+          className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           value={avgPrice}
           onChange={e => setAvgPrice(Number(e.target.value))}
         />
       </div>
       <button
         type="submit"
-        className="bg-green-600 text-white px-3 py-1 rounded"
+        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors duration-150 shadow mt-2 w-full md:w-auto md:self-start"
       >
         Add to Portfolio
       </button>
