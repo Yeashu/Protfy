@@ -27,7 +27,7 @@ function Analysis() {
         </div>
         
         <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">Detailed Analysis</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">Detailed Analysis (Not really as Vercel is forcing me to use low quality models like gemini-1.5-flash-8b, please run offline and use gemini-2.0 and above (they are free))</h2>
           <ProtfolioAnalysis />
         </div>
       </div>

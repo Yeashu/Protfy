@@ -63,7 +63,7 @@ Format your analysis with clear sections and bullet points where appropriate.
 `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-001',
+      model: 'gemini-1.5-flash-8b', // lowerimg model quality due to vercel
       contents: prompt,
     });
 
