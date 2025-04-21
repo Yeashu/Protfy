@@ -11,6 +11,20 @@ import type {
   PortfolioAnalysisResponse,
 } from "@/types/portfolio";
 
+const getStockInfo = async ({ ticker }: { ticker: string }) => {
+  try {
+    const response = await fetch(`/api/stock/${ticker}`);
+    const data = (await response.json()) as
+      | StockApiSuccessResponse
+      | StockApiErrorResponse;
+    if (data.valid) return data;
+    else return { valid: false, info: {} };
+  } catch (error) {
+    console.error(`Error fetching stock info for ${ticker}: ${error}`);
+    return { valid: false, error: error };
+  }
+};
+
 const search = async (query: string): Promise<SearchResult[]> => {
   try {
     const response = await fetch(`/api/search?q=${query}`);
@@ -92,4 +106,10 @@ const getPortfolioAnalysis = async (stocks: Stock[]): Promise<string> => {
   }
 };
 
-export { validateTicker, getLivePrice, getPortfolioAnalysis, search };
+export {
+  validateTicker,
+  getLivePrice,
+  getPortfolioAnalysis,
+  search,
+  getStockInfo,
+};
