@@ -9,8 +9,8 @@ import {
   formatPercentage,
   formatLargeNumber,
 } from "@/lib/formatUtils";
+import AddToProtfolio from "@/components/AddToProtfolio";
 
-// Helper component for displaying a single data point
 const DataPoint: React.FC<{
   label: string;
   value: string | number | undefined | null;
@@ -24,13 +24,11 @@ const DataPoint: React.FC<{
   </div>
 );
 
-// Update the function signature to accept the Promise<Params> type
 function StockInfo({
   params: paramsPromise,
 }: {
   params: Promise<{ ticker: string }>;
 }) {
-  // Unwrap the params Promise using React.use()
   const params = use(paramsPromise);
   const { ticker } = params;
 
@@ -71,7 +69,6 @@ function StockInfo({
             <p className="text-lg text-gray-600">
               Loading stock information...
             </p>
-            {/* maybe add a spinner here */}
           </div>
         ) : error ? (
           <div className="text-center py-10 bg-red-50 border border-red-200 rounded-lg">
@@ -80,22 +77,23 @@ function StockInfo({
         ) : (
           stockData && (
             <div>
-              {/* Header */}
               <div className="mb-6 md:mb-8">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  {stockData.longName || stockData.shortName} (
-                  {stockData.symbol})
-                </h1>
-                <p className="text-sm text-gray-500">
-                  {stockData.fullExchangeName} • {stockData.currency}
-                </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                      {stockData.longName || stockData.shortName} (
+                      {stockData.symbol})
+                    </h1>
+                    <p className="text-sm text-gray-500">
+                      {stockData.fullExchangeName} • {stockData.currency}
+                    </p>
+                  </div>
+                  <AddToProtfolio ticker={stockData.symbol} />
+                </div>
               </div>
 
-              {/* Main Content Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left Column (Price & Performance) */}
                 <div className="lg:col-span-2 space-y-6">
-                  {/* Price Section */}
                   <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-4 text-gray-800">
                       Price Overview
@@ -124,7 +122,7 @@ function StockInfo({
                             stockData.regularMarketChange,
                             stockData.currency
                           )}
-                          {/* Correctly format the percentage change */}(
+                          (
                           {stockData.regularMarketChangePercent &&
                           stockData.regularMarketChangePercent >= 0
                             ? "+"
@@ -184,7 +182,6 @@ function StockInfo({
                     </div>
                   </div>
 
-                  {/* Performance Section */}
                   <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-4 text-gray-800">
                       Performance
@@ -239,9 +236,7 @@ function StockInfo({
                   </div>
                 </div>
 
-                {/* Right Column (Valuation & Rating) */}
                 <div className="lg:col-span-1 space-y-6">
-                  {/* Valuation Section */}
                   <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-4 text-gray-800">
                       Valuation
@@ -278,7 +273,6 @@ function StockInfo({
                     </div>
                   </div>
 
-                  {/* Rating Section */}
                   <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
                     <h2 className="text-xl font-semibold mb-4 text-gray-800">
                       Analyst Rating
@@ -288,7 +282,6 @@ function StockInfo({
                         label="Average Rating"
                         value={stockData.averageAnalystRating ?? "N/A"}
                       />
-                      {/* Add more rating details here if available in the API response */}
                     </div>
                   </div>
                 </div>
