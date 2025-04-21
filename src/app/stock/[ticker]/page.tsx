@@ -10,6 +10,7 @@ import {
   formatLargeNumber,
 } from "@/lib/formatUtils";
 import AddToProtfolio from "@/components/AddToProtfolio";
+import SearchBar from "@/components/SearchBar";
 
 const DataPoint: React.FC<{
   label: string;

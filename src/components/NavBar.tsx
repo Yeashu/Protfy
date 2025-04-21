@@ -2,6 +2,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import SearchBar from './SearchBar'
 
 function NavBar() {
   const pathname = usePathname();
@@ -19,6 +20,14 @@ function NavBar() {
               <span className="text-blue-600 text-xl font-bold">Protfy</span>
             </Link>
           </div>
+          
+          {/* Add SearchBar in the middle with responsive design */}
+          <div className="hidden md:block flex-grow mx-4 max-w-md">
+            <SearchBar 
+              className="w-full"
+            />
+          </div>
+          
           <div className="flex space-x-4 sm:space-x-8">
             <Link 
               href="/" 
@@ -48,6 +57,13 @@ function NavBar() {
               About
             </Link>
           </div>
+        </div>
+        
+        {/* Mobile search bar - only visible on small screens */}
+        <div className="md:hidden pb-3">
+          <SearchBar 
+            className="w-full"
+          />
         </div>
       </div>
     </nav>

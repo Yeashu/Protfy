@@ -14,14 +14,14 @@ export default function Home() {
             Your intelligent portfolio management solution
           </p>
         </div>
-        
-        <div className="mb-8">
+        {/* added search bar to navBar */}
+        {/* <div className="mb-8">
           <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Find Stocks</h2>
             <SearchBar />
           </div>
         </div>
-        
+         */}
         <div className="mb-8">
           <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Add Stock to Portfolio</h2>
