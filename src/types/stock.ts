@@ -19,7 +19,7 @@ export interface YahooFinanceQuote {
   hasPrePostMarketData?: boolean;
   shortName?: string;
   longName?: string;
-  corporateActions?: any[];
+  corporateActions?: unknown[]; // Changed from any[] to unknown[] for eslint
   regularMarketTime?: string | Date;
   exchange?: string;
   messageBoardId?: string;
@@ -94,7 +94,7 @@ export interface YahooFinanceQuote {
   marketState?: string;
   symbol?: string;
   lastMarket?: string;
-  [key: string]: any; // Allow for additional properties that we haven't explicitly defined
+  [key: string]: unknown; // Changed from any to unknown for eslint
 }
 
 // Stock API response types
