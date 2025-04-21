@@ -4,12 +4,7 @@ import { PortfolioContext } from '../context/ProtfolioContext'
 import { validateTicker, search } from '@/lib/stockUtils'
 import type { SearchResult, Stock } from '@/types/stock'
 
-// Either provide at least one property or use a more specific type
-interface StockInputProps {
-  onSubmit?: () => void;
-}
-
-const StockInput: React.FC<StockInputProps> = () => {
+const StockInput: React.FC = () => {
   const [ticker, setTicker] = useState('')
   const [quantity, setQuantity] = useState(1)
   const [avgPrice, setAvgPrice] = useState(0)
@@ -25,7 +20,7 @@ const StockInput: React.FC<StockInputProps> = () => {
       searchTimer.current = window.setTimeout(async () => {
         const results = await search(ticker);
         setSearchResult(results);
-      }, 500);
+      }, 200);
     } else {
       setSearchResult([]);
     }
@@ -75,7 +70,7 @@ const StockInput: React.FC<StockInputProps> = () => {
         <input
           id="stock-ticker"
           type="text"
-          placeholder="e.g. AAPL, HDFC.NS"
+          placeholder="e.g. AAPL, INFY.NS (you can use Stock Name for search)"
           className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           value={ticker}
           onChange={e => setTicker(e.target.value)}

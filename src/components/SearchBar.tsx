@@ -11,7 +11,7 @@ interface SearchBarProps {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
-  placeholder = "Search stocks...",
+  placeholder = "Search stocks... (Name / Ticker)",
   className = "",
 }) => {
   const [query, setQuery] = useState("");
@@ -26,7 +26,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       timer.current = window.setTimeout(async () => {
         const searchResults = await search(query);
         setResult(searchResults);
-      }, 500);
+      }, 200);
     } else {
       setResult([]); // Clear results if query is empty or results are hidden
     }

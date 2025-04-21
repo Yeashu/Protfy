@@ -3,6 +3,14 @@ import React, { createContext, useState, useEffect } from 'react'
 import { Stock } from '@/types/stock'
 import { PortfolioContextType } from '@/types/portfolio'
 
+// Default portfolio stocks for less work for user during demo
+const DEFAULT_STOCKS: Stock[] = [
+  {ticker: 'ZOMATO.BO', quantity: 90, avgPrice: 64},
+  {ticker: 'OFSS.BO', quantity: 7, avgPrice: 3683},
+  {ticker: 'INFY.NS', quantity: 30, avgPrice: 1378},
+  {ticker: 'DMART.NS', quantity: 10, avgPrice: 3730},
+];
+
 export const PortfolioContext = createContext<PortfolioContextType>({
   stocks: [],
   addStock: () => {},
@@ -11,14 +19,14 @@ export const PortfolioContext = createContext<PortfolioContextType>({
 })
 
 export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialize state with data from localStorage if available
+  // Initialize state with data from localStorage if available, otherwise use default stocks
   const [stocks, setStocks] = useState<Stock[]>(() => {
     // skip if the Server Side Rendering is going on
     if (typeof window !== 'undefined') {
       const savedStocks = localStorage.getItem('portfolioStocks');
-      return savedStocks ? JSON.parse(savedStocks) : [];
+      return savedStocks ? JSON.parse(savedStocks) : DEFAULT_STOCKS;
     }
-    return [];
+    return DEFAULT_STOCKS;
   });
 
   // Save to localStorage whenever stocks change
