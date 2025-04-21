@@ -4,6 +4,7 @@ import type { PortfolioAnalysisRequest, PortfolioAnalysisResponse } from "@/type
 import yahooFinance from "yahoo-finance2";
 
 const ai = new GoogleGenAI({apiKey:process.env.GEMINI_API_KEY});
+const model = 'gemini-1.5-flash-8b';// lowerimg model quality due to vercel
 
 export async function POST(request: NextRequest) {
   try {
@@ -63,7 +64,7 @@ Format your analysis with clear sections and bullet points where appropriate.
 `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash-8b', // lowerimg model quality due to vercel
+      model: model, 
       contents: prompt,
     });
 

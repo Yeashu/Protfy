@@ -9,6 +9,11 @@ A smart portfolio tracking and analysis tool that helps investors manage their s
 - **Live Price Updates**: Monitor current prices and changes in your holdings
 - **Portfolio Analysis**: Get AI-powered analysis of your investment strategy
 
+## Vercel Limitation
+The project is currently hosted on vercel and it limits server function execution duration to 10s therefore i cannot use any high quality model for analysis
+Please set up project locally and use good AI models (even gemini2.0 you can get free api) as i am limited to using old gemini 1.0 8b lowest offering by gemini.
+You can change model by doing one-line edit in src/app/api/analyse/protfolio and editing const model. 
+
 ## Getting Started
 
 Clone the repository:
