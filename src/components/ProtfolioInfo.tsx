@@ -3,6 +3,7 @@ import React, { useContext, useState, useEffect, useMemo } from 'react'
 import { PortfolioContext } from '../context/ProtfolioContext'
 import { getLivePrice } from '../lib/stockUtils'
 import type { LivePricesMap } from '@/types/stock'
+import Link from 'next/link'
 
 // Component-specific types
 interface ProfitLossResult {
@@ -113,7 +114,9 @@ const ProtfolioInfo: React.FC = () => {
               <div key={idx} className="py-3">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                    <span className="font-semibold text-gray-900">{stock.ticker}</span>
+                    <Link href={`/stock/${stock.ticker}`}>
+                      <span className="font-semibold text-blue-600 hover:underline cursor-pointer">{stock.ticker}</span>
+                    </Link>
                     <span className="text-sm text-gray-600">Qty: {stock.quantity}</span>
                     <span className="text-sm text-gray-600">Avg: {formatCurrency(stock.avgPrice, stockDisplayCurrency)}</span>
                     {liveData !== undefined && (
