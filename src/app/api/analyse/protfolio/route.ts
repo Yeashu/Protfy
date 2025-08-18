@@ -4,7 +4,9 @@ import type { PortfolioAnalysisRequest, PortfolioAnalysisResponse } from "@/type
 import yahooFinance from "yahoo-finance2";
 
 const ai = new GoogleGenAI({apiKey:process.env.GEMINI_API_KEY});
-const model = 'gemini-1.5-flash-8b';// lowerimg model quality due to vercel
+// Default model used for analysis. For better results run locally and use your own API key
+// with a stronger model (for example: Gemini 2.5 Flash-Lite).
+const model = 'gemini-2.5-flash-lite';
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,7 +74,7 @@ Format your analysis with clear sections and bullet points where appropriate.
       analysis: response.text,
     });
   } catch (error) {
-    console.error("Error analyzing portfolio with Gemini:", error);
+  console.error("Error analyzing portfolio with Gemini:", error);
     return NextResponse.json<PortfolioAnalysisResponse>(
       { 
         analysis: undefined,

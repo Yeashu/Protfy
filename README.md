@@ -9,10 +9,12 @@ A smart portfolio tracking and analysis tool that helps investors manage their s
 - **Live Price Updates**: Monitor current prices and changes in your holdings
 - **Portfolio Analysis**: Get AI-powered analysis of your investment strategy
 
-## Vercel Limitation
-The project is currently hosted on vercel and it limits server function execution duration to 10s therefore i cannot use any high quality model for analysis
-Please set up project locally and use good AI models (even gemini2.0 you can get free api) as i am limited to using old gemini 1.5 8b lowest offering by gemini.
-You can change model by doing one-line edit in src/app/api/analyse/protfolio and editing const model. 
+## Model & Hosting Notes
+Vercel limits server function execution duration to short time windows which may prevent using larger, slower models in hosted builds. For the best analysis, run the project locally (or on a server you control) and use your own API key with a stronger model.
+
+This repository defaults to using "Gemini 2.5 Flash-Lite" as the recommended model in the analysis route (`src/app/api/analyse/protfolio/route.ts`). You can change the model string there to any other model you have access to.
+
+Recommendation: provide your own API key and prefer higher-capability models (for example, Gemini 2.5 Flash-Lite or newer) for more accurate and detailed portfolio analysis.
 
 ## Getting Started
 
@@ -64,7 +66,7 @@ GEMINI_API_KEY=your_gemini_api_key
 - TypeScript
 - TailwindCSS
 - Yahoo Finance API
-- Google Gemini AI
+ - Google Gemini AI
 
 ## Development
 
