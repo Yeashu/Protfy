@@ -25,15 +25,32 @@ const ProtfolioInfo: React.FC = () => {
 
   useEffect(() => {
     const fetchLivePrices = async () => {
-      const prices: LivePricesMap = {}
-      for (const stock of stocks) {
-        // Assuming getLivePrice now returns { price: number | null, currency: string | null }
-        prices[stock.ticker] = await getLivePrice(stock.ticker)
+      if (stocks.length === 0) {
+        setLivePrices({});
+        return;
       }
-      setLivePrices(prices)
-    }
-
-    fetchLivePrices()
+      try {
+        const tickers = stocks.map((s) => s.ticker);
+        const res = await fetch('/api/quotes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tickers }),
+        });
+        if (!res.ok) throw new Error('Failed to load quotes');
+        const data = (await res.json()) as Record<string, LivePricesMap[string]>;
+        const mapped: LivePricesMap = {};
+        for (const t of tickers) mapped[t] = data[t];
+        setLivePrices(mapped);
+  } catch {
+        // fallback to individual calls on error
+        const prices: LivePricesMap = {}
+        for (const stock of stocks) {
+          prices[stock.ticker] = await getLivePrice(stock.ticker)
+        }
+        setLivePrices(prices)
+      }
+    };
+    fetchLivePrices();
   }, [stocks])
 
   // Helper function to format currency
@@ -58,7 +75,7 @@ const ProtfolioInfo: React.FC = () => {
 
   // Calculate total profit/loss and current value across all stocks, converting to INR
   const totalProfitLoss = useMemo<TotalProfitLoss & { currency: string | null }>(() => {
-    const conversionRateUSDtoINR = 85; // 1 USD = 85 INR
+    const conversionRateUSDtoINR = 85; // approx
     let totalAmountINR = 0;
     let totalInvestmentINR = 0;
     let totalCurrentValueINR = 0; // Initialize total current value
@@ -72,8 +89,8 @@ const ProtfolioInfo: React.FC = () => {
         let investmentAmountINR = investmentAmount;
         let currentValueINR = currentValue;
 
-        // Convert to INR if currency is not INR (assuming USD for now)
-        if (liveData.currency === 'USD') { // Or check for other non-INR currencies
+  // Convert to INR if currency is USD; otherwise assume INR for now
+  if (liveData.currency === 'USD') {
           investmentAmountINR = investmentAmount * conversionRateUSDtoINR;
           currentValueINR = currentValue * conversionRateUSDtoINR;
         }
@@ -89,11 +106,11 @@ const ProtfolioInfo: React.FC = () => {
     const totalPercentage = totalInvestmentINR > 0 ? (totalAmountINR / totalInvestmentINR) * 100 : 0;
 
     return {
-      amount: totalAmountINR, // Amount is now in INR
+      amount: totalAmountINR,
       percentage: totalPercentage,
       isProfit: totalAmountINR >= 0,
-      currency: 'INR', // Display currency is INR
-      totalCurrentValueINR: totalCurrentValueINR // Return total current value
+      currency: 'INR',
+      totalCurrentValueINR: totalCurrentValueINR
     };
   }, [stocks, livePrices]);
 
@@ -146,7 +163,13 @@ const ProtfolioInfo: React.FC = () => {
           })}
         </div>
       ) : (
-        <p className="text-gray-500 italic py-4">No stocks in portfolio. Add stocks to track your investments.</p>
+        <div className="py-6 text-center text-gray-700">
+          <p className="mb-3">Your portfolio is empty. Add your first position to get started.</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="#add-stock" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md inline-block">Add a stock</a>
+            <button className="border border-gray-300 hover:bg-gray-100 px-4 py-2 rounded-md">Import from CSV (coming soon)</button>
+          </div>
+        </div>
       )}
       
       {/* Display total profit/loss and current value */}
@@ -167,6 +190,9 @@ const ProtfolioInfo: React.FC = () => {
                 ({totalProfitLoss.isProfit ? '+' : ''}{totalProfitLoss.percentage && totalProfitLoss.percentage.toFixed(2)}%)
               </span>
             </span>
+          </div>
+          <div className="mt-2 text-xs text-gray-500">
+            USD values converted to INR at an approximate rate of 85. This is a rough estimate.
           </div>
         </div>
       )}

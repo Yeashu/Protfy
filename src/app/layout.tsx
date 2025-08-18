@@ -25,11 +25,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <PortfolioProvider>
-        {children}
+          {children}
+          <footer className="border-t border-gray-200 bg-white text-gray-600 text-sm mt-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              <p>
+                Information provided by Protfy is for educational purposes only and does not constitute financial advice. Markets are risky; do your own research.
+              </p>
+            </div>
+          </footer>
         </PortfolioProvider>
       </body>
     </html>

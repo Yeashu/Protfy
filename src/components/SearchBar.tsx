@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { search } from "@/lib/stockUtils";
 import type { SearchResult } from "@/types/stock";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 interface SearchBarProps {
   placeholder?: string;
@@ -17,6 +16,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [activeIndex, setActiveIndex] = useState<number>(-1);
   const timer = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -53,40 +53,76 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (query.trim()) {
-      router.push(`/stock/${query.trim()}`);
+    const items = result.filter((val): val is Extract<SearchResult, { symbol: string }> => 'symbol' in val);
+    if (activeIndex >= 0 && activeIndex < items.length) {
+      router.push(`/stock/${items[activeIndex].symbol}`);
+      setShowResults(false);
+      return;
     }
+    if (query.trim()) router.push(`/stock/${query.trim()}`);
   }
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showResults) return;
+    const items = result.filter((val): val is Extract<SearchResult, { symbol: string }> => 'symbol' in val);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev + 1) % Math.max(items.length, 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev - 1 + Math.max(items.length, 1)) % Math.max(items.length, 1));
+    } else if (e.key === 'Enter') {
+      // Let form submit handle routing based on activeIndex
+    } else if (e.key === 'Escape') {
+      setShowResults(false);
+    }
+  };
 
   return (
     <form
       className={`flex items-center gap-3 w-full ${className}`}
       onSubmit={submit}
+      role="search"
     >
-      <div className="relative flex-grow" ref={containerRef} onBlur={handleBlur}>
+      <div
+        className="relative flex-grow"
+        ref={containerRef}
+        onBlur={handleBlur}
+      >
         <input
           onChange={(e) => setQuery(e.target.value)}
           onFocus={handleFocus}
+          onKeyDown={onKeyDown}
           type="text"
           placeholder={placeholder}
           className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           value={query}
           autoComplete="off"
+          role="combobox"
+          aria-expanded={showResults}
+          aria-controls="search-results-listbox"
         />
         {/* Conditionally render results */}
         {showResults && result.length > 0 && (
-          <ul className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
-            {result.map((val) => {
+          <ul
+            id="search-results-listbox"
+            role="listbox"
+            className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto"
+          >
+            {result.map((val, idx) => {
               // Only render items that have a symbol property (StockResult type)
               if ('symbol' in val) {
                 return (
-                  <Link href={`/stock/${val.symbol}`} key={val.symbol}>
-                  <li
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-150"
-                  >
-                    {`${val.shortname || val.longname || val.symbol} (${val.symbol})`}
+                  <li key={val.symbol} role="option" aria-selected={activeIndex === idx}>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => { e.preventDefault(); }}
+                      onClick={() => { setShowResults(false); router.push(`/stock/${val.symbol}`); }}
+                      className={`w-full text-left px-4 py-2 transition-colors duration-150 ${activeIndex === idx ? 'bg-blue-50' : 'hover:bg-gray-100'}`}
+                    >
+                      {`${val.shortname || val.longname || val.symbol} (${val.symbol})`}
+                    </button>
                   </li>
-                  </Link>
                 );
               }
               return null; // Skip rendering items without a symbol

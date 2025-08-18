@@ -21,7 +21,7 @@ export default function Home() {
           </div>
         </div>
          */}
-        <div className="mb-8">
+        <div className="mb-8" id="add-stock">
           <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Add Stock to Portfolio</h2>
             <StockInput />
