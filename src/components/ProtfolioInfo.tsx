@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { useToast } from '@/context/ToastContext'
+import Skeleton from '@/components/ui/Skeleton'
 
 // Component-specific types
 interface ProfitLossResult {
@@ -27,7 +28,7 @@ interface TotalProfitLoss {
 const ProtfolioInfo: React.FC = () => {
   const { stocks, count, removeStock, updateStock } = useContext(PortfolioContext)
   const tickers = stocks.map(s => s.ticker);
-  const { data: livePrices } = useQuotes(tickers);
+  const { data: livePrices, isLoading } = useQuotes(tickers);
   const { show } = useToast();
   const [confirmTicker, setConfirmTicker] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
@@ -101,7 +102,14 @@ const ProtfolioInfo: React.FC = () => {
       <div className="mb-3 text-gray-700">Total Stocks: <span className="font-medium">{count}</span></div>
       {stocks.length > 0 ? (
         <div className="divide-y divide-gray-200">
-          {stocks.map((stock, idx) => {
+          {isLoading && (
+            <div className="py-3 space-y-2">
+              <Skeleton className="h-5 w-40" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          )}
+          {!isLoading && stocks.map((stock, idx) => {
             const liveData = livePrices[stock.ticker];
             const profitLoss = liveData?.price !== null && liveData?.price !== undefined
               ? calculateProfitLoss(stock.avgPrice, liveData.price, stock.quantity)
@@ -191,13 +199,13 @@ const ProtfolioInfo: React.FC = () => {
           <p className="mb-3">Your portfolio is empty. Add your first position to get started.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a href="#add-stock" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md inline-block">Add a stock</a>
-            <button className="border border-gray-300 hover:bg-gray-100 px-4 py-2 rounded-md">Import from CSV (coming soon)</button>
+            <button className="border border-gray-300 hover:bg-gray-100 px-4 py-2 rounded-md" aria-haspopup="dialog" aria-expanded="false">Import from CSV (coming soon)</button>
           </div>
         </div>
       )}
       
       {/* Display total profit/loss and current value */}
-      {stocks.length > 0 && Object.keys(livePrices).length > 0 && (
+      {stocks.length > 0 && !isLoading && Object.keys(livePrices).length > 0 && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <div className="font-semibold mb-2 text-gray-800">Total Portfolio (INR):</div>
           {/* Display Current Portfolio Value */}
@@ -218,6 +226,13 @@ const ProtfolioInfo: React.FC = () => {
           <div className="mt-2 text-xs text-gray-500">
             USD values converted to INR at an approximate rate of 85. This is a rough estimate.
           </div>
+        </div>
+      )}
+      {stocks.length > 0 && isLoading && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <Skeleton className="h-5 w-56 mb-2" />
+          <Skeleton className="h-4 w-full mb-2" />
+          <Skeleton className="h-4 w-2/3" />
         </div>
       )}
       <ConfirmDialog

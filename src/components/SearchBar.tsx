@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { search } from "@/lib/stockUtils";
-import type { SearchResult } from "@/types/stock";
+import useSWR from "swr";
+import type { SearchResult, SearchResponseData } from "@/types/stock";
 import { useRouter } from "next/navigation";
 
 interface SearchBarProps {
@@ -14,25 +14,35 @@ const SearchBar: React.FC<SearchBarProps> = ({
   className = "",
 }) => {
   const [query, setQuery] = useState("");
-  const [result, setResult] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
   const timer = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
   useEffect(() => {
-    clearTimeout(timer.current as number | undefined);
-    if (query.trim() !== "" && showResults) {
-      timer.current = window.setTimeout(async () => {
-        const searchResults = await search(query);
-        setResult(searchResults);
-      }, 200);
-    } else {
-      setResult([]); // Clear results if query is empty or results are hidden
+    // debounce the query input
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setDebouncedQuery(query), 250);
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [query]);
+
+  const shouldFetch = showResults && debouncedQuery.trim() !== "";
+  const { data, isLoading } = useSWR<SearchResult[]>(
+    shouldFetch ? ["/api/search", debouncedQuery] : null,
+    async ([_, q]) => {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q as string)}`);
+      if (!res.ok) return [];
+      const json = (await res.json()) as SearchResponseData;
+      return json.quotes ?? [];
+    },
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 10_000,
     }
-  
-    return () => clearTimeout(timer.current as number | undefined);
-  }, [query, showResults]);
+  );
 
   const handleFocus = () => {
     setShowResults(true);
@@ -53,7 +63,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const items = result.filter((val): val is Extract<SearchResult, { symbol: string }> => 'symbol' in val);
+  const items = (data ?? []).filter((val): val is Extract<SearchResult, { symbol: string }> => 'symbol' in val);
     if (activeIndex >= 0 && activeIndex < items.length) {
       router.push(`/stock/${items[activeIndex].symbol}`);
       setShowResults(false);
@@ -64,7 +74,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showResults) return;
-    const items = result.filter((val): val is Extract<SearchResult, { symbol: string }> => 'symbol' in val);
+  const items = (data ?? []).filter((val): val is Extract<SearchResult, { symbol: string }> => 'symbol' in val);
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setActiveIndex((prev) => (prev + 1) % Math.max(items.length, 1));
@@ -103,13 +113,18 @@ const SearchBar: React.FC<SearchBarProps> = ({
           aria-controls="search-results-listbox"
         />
         {/* Conditionally render results */}
-        {showResults && result.length > 0 && (
+        {showResults && (
           <ul
             id="search-results-listbox"
             role="listbox"
             className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto"
           >
-            {result.map((val, idx) => {
+            {/* Loading state */}
+            {isLoading && (
+              <li className="px-4 py-2 text-sm text-gray-500">Searching…</li>
+            )}
+            {/* Results */}
+            {(data ?? []).map((val, idx) => {
               // Only render items that have a symbol property (StockResult type)
               if ('symbol' in val) {
                 return (
@@ -127,6 +142,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
               }
               return null; // Skip rendering items without a symbol
             }).filter(Boolean)}
+            {/* No results */}
+            {!isLoading && (data ?? []).length === 0 && debouncedQuery.trim() !== '' && (
+              <li className="px-4 py-2 text-sm text-gray-500">No matches</li>
+            )}
           </ul>
         )}
       </div>

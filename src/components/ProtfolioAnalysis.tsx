@@ -5,6 +5,7 @@ import { PortfolioContext } from '@/context/ProtfolioContext';
 import type { AnalysisResult } from '@/types/portfolio';
 import AllocationBar from './AllocationBar';
 import Badge from '@/components/ui/Badge';
+import Skeleton from '@/components/ui/Skeleton';
 
 function ProtfolioAnalysis() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
@@ -62,8 +63,19 @@ function ProtfolioAnalysis() {
       {error && <p className="text-red-500 mb-4">{error}</p>}
       
       {loading && (
-        <div className="flex items-center justify-center p-6">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="p-6 space-y-4">
+          <Skeleton className="h-9 w-44" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Skeleton className="h-20" />
+            <Skeleton className="h-20" />
+            <Skeleton className="h-20" />
+          </div>
+          <Skeleton className="h-6 w-64" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-4 w-2/3" />
+          </div>
         </div>
       )}
       
