@@ -9,6 +9,7 @@ import type {
 import type {
   PortfolioAnalysisRequest,
   PortfolioAnalysisResponse,
+  AnalysisResult,
 } from "@/types/portfolio";
 
 const getStockInfo = async ({ ticker }: { ticker: string }) => {
@@ -81,7 +82,7 @@ const getLivePrice = async (ticker: string): Promise<LivePriceData> => {
   }
 };
 
-const getPortfolioAnalysis = async (stocks: Stock[]): Promise<string> => {
+const getPortfolioAnalysis = async (stocks: Stock[]): Promise<AnalysisResult> => {
   try {
     const response = await fetch("/api/analyse/protfolio", {
       method: "POST",
@@ -99,7 +100,9 @@ const getPortfolioAnalysis = async (stocks: Stock[]): Promise<string> => {
       throw new Error(data.error || "Failed to analyze portfolio");
     }
 
-    return data.analysis || "No analysis available";
+  if (!data.analysis) throw new Error(data.error || "No analysis available");
+
+  return data.analysis;
   } catch (error) {
     console.error(`Error analyzing portfolio: ${error}`);
     throw error;

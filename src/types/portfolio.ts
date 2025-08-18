@@ -8,12 +8,44 @@ export interface PortfolioContextType {
   count: number;
 }
 
-// Portfolio analysis types
+// Portfolio analysis request (unchanged)
 export interface PortfolioAnalysisRequest {
   portfolioData: Stock[];
 }
 
+// Structured analysis types returned by the AI backend
+export interface PositionAnalysis {
+  ticker: string;
+  quantity: number;
+  avgPrice: number;
+  currentPrice: number | null;
+  costBasis: number;
+  currentValue: number;
+  profitLoss: number;
+  profitLossPercent: number;
+  weightPercent: number;
+  rating: number | null; // 0-5
+  bullets?: string[];
+  suggestedAction?: string;
+}
+
+export interface PortfolioSummary {
+  totalCost: number;
+  totalValue: number;
+  totalProfitLoss: number;
+  healthScore: number | null; // 0-100
+  diversificationScore: number | null; // 0-100
+}
+
+export interface AnalysisResult {
+  portfolioSummary: PortfolioSummary;
+  positions: PositionAnalysis[];
+  suggestions?: { title: string; detail: string }[];
+  raw?: string; // fallback raw text from model if needed
+  diagnostics?: { model?: string; promptHash?: string };
+}
+
 export interface PortfolioAnalysisResponse {
-  analysis: string | undefined;
+  analysis?: AnalysisResult;
   error?: string;
 }

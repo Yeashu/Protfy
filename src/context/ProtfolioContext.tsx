@@ -5,7 +5,7 @@ import { PortfolioContextType } from '@/types/portfolio'
 
 // Default portfolio stocks for less work for user during demo
 const DEFAULT_STOCKS: Stock[] = [
-  {ticker: 'ZOMATO.BO', quantity: 90, avgPrice: 64},
+  {ticker: 'NVDA', quantity: 90, avgPrice: 140},
   {ticker: 'OFSS.BO', quantity: 7, avgPrice: 3683},
   {ticker: 'INFY.NS', quantity: 30, avgPrice: 1378},
   {ticker: 'DMART.NS', quantity: 10, avgPrice: 3730},
