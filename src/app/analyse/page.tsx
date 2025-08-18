@@ -4,6 +4,7 @@ import React from 'react'
 import NavBar from '@/components/NavBar'
 import ProtfolioAnalysis from '@/components/ProtfolioAnalysis'
 import ProtfolioInfo from '@/components/ProtfolioInfo'
+import Card from "@/components/ui/Card";
 
 function Analysis() {
   return (
@@ -19,17 +20,21 @@ function Analysis() {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-3">
-            <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-6">
+            <Card className="mb-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800">Portfolio Overview</h2>
               <ProtfolioInfo/>
-            </div>
+            </Card>
           </div>
         </div>
         
-        <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">Detailed Analysis (For best results run locally with your own API key and a stronger model such as Gemini 2.5 Flash-Lite)</h2>
+        <Card>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl font-semibold text-gray-800">Detailed Analysis</h2>
+            <span className="text-xs text-gray-500">Last updated: on demand</span>
+          </div>
+          <p className="text-sm text-gray-600 mb-4">For best results run locally with your own API key and a stronger model such as Gemini 2.5 Flash-Lite.</p>
           <ProtfolioAnalysis />
-        </div>
+        </Card>
       </div>
     </div>
   )

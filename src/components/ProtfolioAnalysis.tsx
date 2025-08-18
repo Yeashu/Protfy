@@ -4,11 +4,13 @@ import { getPortfolioAnalysis } from '@/lib/stockUtils';
 import { PortfolioContext } from '@/context/ProtfolioContext';
 import type { AnalysisResult } from '@/types/portfolio';
 import AllocationBar from './AllocationBar';
+import Badge from '@/components/ui/Badge';
 
 function ProtfolioAnalysis() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const { stocks } = useContext(PortfolioContext);
 
   const handleAnalyzePortfolio = useCallback(async () => {
@@ -21,7 +23,8 @@ function ProtfolioAnalysis() {
     setError(null);
     try {
       const result = await getPortfolioAnalysis(stocks);
-      setAnalysis(result);
+  setAnalysis(result);
+  setLastUpdated(new Date().toLocaleString());
     } catch (error) {
       console.error("Portfolio analysis error:", error);
       setError("Failed to analyze portfolio. Please try again later.");
@@ -67,6 +70,9 @@ function ProtfolioAnalysis() {
       {analysis && (
         <div className="border rounded-md p-6 bg-gray-50">
           <h3 className="text-xl font-bold mb-4">Analysis Results</h3>
+          {lastUpdated && (
+            <div className="mb-3 text-xs text-gray-500">Last updated: {lastUpdated}</div>
+          )}
 
           <div className="mb-4 flex items-center gap-3">
             <button
@@ -94,6 +100,15 @@ function ProtfolioAnalysis() {
               <h4 className="font-semibold">Profit / Loss</h4>
               <p className="text-lg">{analysis.portfolioSummary.totalProfitLoss?.toFixed(2)}</p>
             </div>
+          </div>
+
+          <div className="mb-4 flex gap-2 items-center">
+            <Badge color={analysis.portfolioSummary.healthScore !== null && analysis.portfolioSummary.healthScore >= 60 ? 'green' : 'yellow'}>
+              Health: {analysis.portfolioSummary.healthScore ?? '—'}
+            </Badge>
+            <Badge color={analysis.portfolioSummary.diversificationScore !== null && analysis.portfolioSummary.diversificationScore >= 60 ? 'green' : 'yellow'}>
+              Diversification: {analysis.portfolioSummary.diversificationScore ?? '—'}
+            </Badge>
           </div>
 
           <div className="mb-6">

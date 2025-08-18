@@ -1,6 +1,7 @@
 import NavBar from "@/components/NavBar";
 import ProtfolioInfo from "@/components/ProtfolioInfo";
 import StockInput from "@/components/StockInput";
+import Card from "@/components/ui/Card";
 
 export default function Home() {
   return (
@@ -22,17 +23,17 @@ export default function Home() {
         </div>
          */}
         <div className="mb-8" id="add-stock">
-          <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-6">
+          <Card className="mb-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Add Stock to Portfolio</h2>
             <StockInput />
-          </div>
+          </Card>
         </div>
         
         <div className="mb-8">
-          <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+          <Card>
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Your Portfolio</h2>
             <ProtfolioInfo />
-          </div>
+          </Card>
         </div>
       </div>
     </div>
