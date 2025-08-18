@@ -10,6 +10,8 @@ import {
   formatLargeNumber,
 } from "@/lib/formatUtils";
 import AddToProtfolio from "@/components/AddToProtfolio";
+import Sparkline from "@/components/Sparkline";
+import { useSparkline } from "@/lib/hooks/useSparkline";
 
 const DataPoint: React.FC<{
   label: string;
@@ -60,6 +62,8 @@ function StockInfo({
     fetchStockData();
   }, [ticker]);
 
+  const { data: spark, isLoading: sparkLoading } = useSparkline(stockData?.symbol ?? ticker);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <NavBar />
@@ -98,6 +102,13 @@ function StockInfo({
                     <h2 className="text-xl font-semibold mb-4 text-gray-800">
                       Price Overview
                     </h2>
+                    <div className="mb-3">
+                      {sparkLoading ? (
+                        <div className="h-8 w-32 bg-gray-200 animate-pulse rounded" />
+                      ) : (
+                        <Sparkline data={spark} />
+                      )}
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                       <div className="flex items-baseline space-x-2">
                         <span className="text-3xl font-bold text-gray-900">

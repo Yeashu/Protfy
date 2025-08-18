@@ -60,7 +60,12 @@ function ProtfolioAnalysis() {
         </div>
       )}
       
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+      {error && (
+        <div className="text-red-600 mb-4 flex items-center justify-between bg-red-50 border border-red-200 rounded p-3">
+          <p>{error}</p>
+          <button onClick={handleAnalyzePortfolio} className="underline text-red-700">Retry</button>
+        </div>
+      )}
       
       {loading && (
         <div className="p-6 space-y-4">
@@ -129,9 +134,9 @@ function ProtfolioAnalysis() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse">
+            <table className="min-w-full border-collapse" role="table" aria-label="Analysis positions">
               <thead>
-                <tr className="text-left border-b">
+                <tr className="text-left border-b sticky top-0 bg-gray-50">
                   <th className="px-2 py-2">Ticker</th>
                   <th className="px-2 py-2">Qty</th>
                   <th className="px-2 py-2">Avg</th>

@@ -31,9 +31,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const shouldFetch = showResults && debouncedQuery.trim() !== "";
   const { data, isLoading } = useSWR<SearchResult[]>(
-    shouldFetch ? ["/api/search", debouncedQuery] : null,
-    async ([_, q]) => {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q as string)}`);
+    shouldFetch ? ["/api/search", debouncedQuery] as const : null,
+    async (key: readonly [string, string]) => {
+      const q = key[1];
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
       if (!res.ok) return [];
       const json = (await res.json()) as SearchResponseData;
       return json.quotes ?? [];
@@ -111,6 +112,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
           role="combobox"
           aria-expanded={showResults}
           aria-controls="search-results-listbox"
+          aria-autocomplete="list"
+          aria-activedescendant={activeIndex >= 0 ? `search-option-${activeIndex}` : undefined}
         />
         {/* Conditionally render results */}
         {showResults && (
@@ -124,11 +127,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
               <li className="px-4 py-2 text-sm text-gray-500">Searching…</li>
             )}
             {/* Results */}
-            {(data ?? []).map((val, idx) => {
+    {(data ?? []).map((val, idx) => {
               // Only render items that have a symbol property (StockResult type)
               if ('symbol' in val) {
                 return (
-                  <li key={val.symbol} role="option" aria-selected={activeIndex === idx}>
+      <li id={`search-option-${idx}`} key={val.symbol} role="option" aria-selected={activeIndex === idx}>
                     <button
                       type="button"
                       onMouseDown={(e) => { e.preventDefault(); }}
