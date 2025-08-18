@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react'
 import { PortfolioContext } from '@/context/ProtfolioContext'
 import { Stock } from '@/types/stock';
+import { useToast } from '@/context/ToastContext';
 
 function AddToProtfolio({ticker}:{ticker: string}) {
     const {addStock} = useContext(PortfolioContext);
+    const { show } = useToast();
     const [showInputs, setShowInputs] = useState(false);
     const [quantity, setQuantity] = useState<string | number>('');
     const [avgPrice, setAvgPrice] = useState<string | number>('');
@@ -27,8 +29,9 @@ function AddToProtfolio({ticker}:{ticker: string}) {
             setShowInputs(false);
             setQuantity('');
             setAvgPrice('');
+            show('Stock added to portfolio', 'success');
         } else {
-            alert("Please enter a valid quantity (must be > 0) and average price (must be >= 0).");
+            show('Please enter a valid quantity (> 0) and average price (>= 0).', 'error');
         }
     }
 

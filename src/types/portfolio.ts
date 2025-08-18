@@ -5,6 +5,7 @@ export interface PortfolioContextType {
   stocks: Stock[];
   addStock: (stock: Stock) => void;
   removeStock: (ticker: string) => void;
+  updateStock: (ticker: string, updates: Partial<Pick<Stock, 'quantity' | 'avgPrice'>>) => void;
   count: number;
 }
 

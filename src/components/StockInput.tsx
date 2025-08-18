@@ -3,6 +3,7 @@ import React, { useState, useContext, useEffect, useRef } from 'react'
 import { PortfolioContext } from '../context/ProtfolioContext'
 import { validateTicker, search } from '@/lib/stockUtils'
 import type { SearchResult, Stock } from '@/types/stock'
+import { useToast } from '@/context/ToastContext'
 
 const StockInput: React.FC = () => {
   const [ticker, setTicker] = useState('')
@@ -13,6 +14,7 @@ const StockInput: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const searchTimer = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { show } = useToast();
 
   useEffect(() => {
     clearTimeout(searchTimer.current as number | undefined);
@@ -59,7 +61,7 @@ const StockInput: React.FC = () => {
       setQuantity(1)
       setAvgPrice(0)
     } else {
-      alert("Invalid ticker symbol. Please recheck.");
+      show("Invalid ticker symbol. Please recheck.", "error");
     }
   }
 

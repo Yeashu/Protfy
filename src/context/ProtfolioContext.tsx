@@ -15,6 +15,7 @@ export const PortfolioContext = createContext<PortfolioContextType>({
   stocks: [],
   addStock: () => {},
   removeStock: () => {},
+  updateStock: () => {},
   count: 0,
 })
 
@@ -73,10 +74,21 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setStocks(prev => prev.filter(stock => stock.ticker !== ticker));
   }
 
+  const updateStock: PortfolioContextType['updateStock'] = (ticker, updates) => {
+    setStocks(prev => prev.map(s => {
+      if (s.ticker.toLowerCase() !== ticker.toLowerCase()) return s;
+      return {
+        ...s,
+        ...(updates.quantity !== undefined ? { quantity: updates.quantity } : {}),
+        ...(updates.avgPrice !== undefined ? { avgPrice: updates.avgPrice } : {}),
+      };
+    }));
+  }
+
   const count = stocks.length
 
   return (
-    <PortfolioContext.Provider value={{ stocks, addStock, removeStock, count }}>
+    <PortfolioContext.Provider value={{ stocks, addStock, removeStock, updateStock, count }}>
       {children}
     </PortfolioContext.Provider>
   )

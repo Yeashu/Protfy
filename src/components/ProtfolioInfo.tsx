@@ -1,9 +1,14 @@
 "use client"
-import React, { useContext, useState, useEffect, useMemo } from 'react'
+import React, { useContext, useMemo, useState } from 'react'
 import { PortfolioContext } from '../context/ProtfolioContext'
-import { getLivePrice } from '../lib/stockUtils'
-import type { LivePricesMap } from '@/types/stock'
+// import { getLivePrice } from '../lib/stockUtils'
+// import type { LivePricesMap } from '@/types/stock'
 import Link from 'next/link'
+import { useQuotes } from '@/lib/hooks/useQuotes'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToast } from '@/context/ToastContext'
 
 // Component-specific types
 interface ProfitLossResult {
@@ -20,38 +25,14 @@ interface TotalProfitLoss {
 }
 
 const ProtfolioInfo: React.FC = () => {
-  const { stocks, count, removeStock } = useContext(PortfolioContext)
-  const [livePrices, setLivePrices] = useState<LivePricesMap>({})
-
-  useEffect(() => {
-    const fetchLivePrices = async () => {
-      if (stocks.length === 0) {
-        setLivePrices({});
-        return;
-      }
-      try {
-        const tickers = stocks.map((s) => s.ticker);
-        const res = await fetch('/api/quotes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tickers }),
-        });
-        if (!res.ok) throw new Error('Failed to load quotes');
-        const data = (await res.json()) as Record<string, LivePricesMap[string]>;
-        const mapped: LivePricesMap = {};
-        for (const t of tickers) mapped[t] = data[t];
-        setLivePrices(mapped);
-  } catch {
-        // fallback to individual calls on error
-        const prices: LivePricesMap = {}
-        for (const stock of stocks) {
-          prices[stock.ticker] = await getLivePrice(stock.ticker)
-        }
-        setLivePrices(prices)
-      }
-    };
-    fetchLivePrices();
-  }, [stocks])
+  const { stocks, count, removeStock, updateStock } = useContext(PortfolioContext)
+  const tickers = stocks.map(s => s.ticker);
+  const { data: livePrices } = useQuotes(tickers);
+  const { show } = useToast();
+  const [confirmTicker, setConfirmTicker] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [editQty, setEditQty] = useState<number>(0);
+  const [editAvg, setEditAvg] = useState<number>(0);
 
   // Helper function to format currency
   const formatCurrency = (value: number | null, currency: string | null): string => {
@@ -142,13 +123,56 @@ const ProtfolioInfo: React.FC = () => {
                       </span>
                     )}
                   </div>
-                  <button 
-                    onClick={() => removeStock(stock.ticker)} 
-                    className="bg-red-100 hover:bg-red-200 text-red-600 px-3 py-1 rounded text-xs font-medium transition-colors duration-150"
-                  >
-                    Remove
-                  </button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setEditing(stock.ticker);
+                        setEditQty(stock.quantity);
+                        setEditAvg(stock.avgPrice);
+                      }}
+                    >Edit</Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setConfirmTicker(stock.ticker)}
+                    >Remove</Button>
+                  </div>
                 </div>
+                {editing === stock.ticker && (
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <Input
+                      label="Quantity"
+                      type="number"
+                      min={1}
+                      value={editQty}
+                      onChange={(e) => setEditQty(Number(e.target.value))}
+                    />
+                    <Input
+                      label="Avg Price"
+                      type="number"
+                      min={0}
+                      step={0.01}
+                      value={editAvg}
+                      onChange={(e) => setEditAvg(Number(e.target.value))}
+                    />
+                    <div className="flex items-end gap-2">
+                      <Button
+                        onClick={() => {
+                          if (editQty > 0 && editAvg >= 0) {
+                            updateStock(stock.ticker, { quantity: editQty, avgPrice: editAvg });
+                            setEditing(null);
+                            show('Position updated', 'success');
+                          } else {
+                            show('Enter a valid quantity (> 0) and average price (>= 0).', 'error');
+                          }
+                        }}
+                      >Save</Button>
+                      <Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
+                    </div>
+                  </div>
+                )}
                 
                 {profitLoss && profitLoss.amount !== null && (
                   <div className={`text-sm ${profitLoss.isProfit ? 'text-green-600' : 'text-red-600'} font-medium`}>
@@ -196,6 +220,20 @@ const ProtfolioInfo: React.FC = () => {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={!!confirmTicker}
+        onCancel={() => setConfirmTicker(null)}
+        onConfirm={() => {
+          if (confirmTicker) {
+            removeStock(confirmTicker);
+            show('Stock removed from portfolio', 'success');
+          }
+          setConfirmTicker(null);
+        }}
+        title="Remove position?"
+        description="This will remove the stock from your portfolio. You can add it back later."
+        confirmText="Remove"
+      />
     </div>
   )
 }
